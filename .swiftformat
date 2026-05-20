@@ -1,5 +1,5 @@
 --swiftversion 5.9
---minversion 0.54
+--minversion 0.52
 
 # File options
 --exclude build,Pods,fastlane,MBCTests/Mocks,.build,vendor

@@ -7,17 +7,17 @@ public enum BadgeVariant {
 
     var background: Color {
         switch self {
-        case .success: return DSColor.successLight
-        case .warning: return DSColor.warningLight
-        case .error: return DSColor.errorLight
+        case .success: DSColor.successLight
+        case .warning: DSColor.warningLight
+        case .error: DSColor.errorLight
         }
     }
 
     var foreground: Color {
         switch self {
-        case .success: return DSColor.success
-        case .warning: return DSColor.warning
-        case .error: return DSColor.error
+        case .success: DSColor.success
+        case .warning: DSColor.warning
+        case .error: DSColor.error
         }
     }
 }
