@@ -1,0 +1,33 @@
+default_platform(:ios)
+
+platform :ios do
+
+  lane :lint do
+    swiftlint(config_file: ".swiftlint.yml")
+    sh("cd .. && swiftformat . --config .swiftformat --lint")
+  end
+
+  lane :unit_tests do
+    run_tests(
+      project: "MBC.xcodeproj",
+      scheme: "MBC",
+      only_testing: ['MBCTests'],
+      output_directory: './test_output',
+      result_bundle: true,
+      code_coverage: true,
+      xcargs: "CODE_SIGNING_ALLOWED=NO"
+    )
+  end
+
+  lane :archive do
+    build_app(
+      project: "MBC.xcodeproj",
+      scheme: "MBC",
+      skip_codesigning: true,
+      skip_package_ipa: true,
+      archive_path: "./build/MBC.xcarchive",
+      xcargs: "CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED=NO"
+    )
+  end
+
+end

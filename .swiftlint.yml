@@ -1,0 +1,46 @@
+included:
+  - MBC
+
+excluded:
+  - MBC/Resources
+  - MBCTests/Mocks
+
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+
+opt_in_rules:
+  - force_unwrapping
+  - force_cast
+  - implicitly_unwrapped_optional
+  - private_over_fileprivate
+  - empty_count
+  - closure_spacing
+  - overridden_super_call
+  - unused_import
+  - vertical_whitespace_closing_braces
+
+force_unwrapping: error
+force_cast: error
+
+file_length:
+  warning: 300
+  error: 500
+
+type_body_length:
+  warning: 250
+  error: 400
+
+function_body_length:
+  warning: 40
+  error: 80
+
+cyclomatic_complexity:
+  warning: 10
+  error: 15
+
+nesting:
+  type_level: 2
+  function_level: 3
+
+reporter: "xcode"
