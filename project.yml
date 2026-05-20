@@ -1,0 +1,85 @@
+name: MBC
+options:
+  bundleIdPrefix: com.liauli
+  deploymentTarget:
+    iOS: "14.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "14.0"
+    SUPPORTS_MACCATALYST: false
+    TARGETED_DEVICE_FAMILY: "1"
+    INFOPLIST_KEY_UILaunchScreen_Generation: true
+    INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+    ENABLE_USER_SCRIPT_SANDBOXING: false
+    DEAD_CODE_STRIPPING: true
+  configs:
+    Debug:
+      SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+      SWIFT_COMPILATION_MODE: "singlefile"
+      DEBUG_INFORMATION_FORMAT: "dwarf"
+      ENABLE_TESTABILITY: true
+    Release:
+      SWIFT_OPTIMIZATION_LEVEL: "-Osize"
+      SWIFT_COMPILATION_MODE: "wholemodule"
+      DEBUG_INFORMATION_FORMAT: "dwarf-with-dsym"
+      DEAD_CODE_STRIPPING: true
+      STRIP_INSTALLED_PRODUCT: true
+      STRIP_SWIFT_SYMBOLS: true
+
+packages:
+  MBCDesignSystem:
+    path: MBCDesignSystem
+
+targets:
+  MBC:
+    type: application
+    platform: iOS
+    sources:
+      - path: MBC
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.liauli.mbc
+        GENERATE_INFOPLIST_FILE: true
+        INFOPLIST_KEY_NFCReaderUsageDescription: "Aplikasi membutuhkan NFC untuk membaca dan menulis kartu anggota koperasi."
+        INFOPLIST_KEY_CFBundleDisplayName: "MBC"
+        CODE_SIGN_IDENTITY: "Apple Development"
+        CODE_SIGNING_REQUIRED: true
+        CODE_SIGN_STYLE: "Automatic"
+    dependencies:
+      - package: MBCDesignSystem
+    entitlements:
+      path: MBC/Resources/MBC.entitlements
+      properties:
+        com.apple.developer.nfc.readersession.formats:
+          - NDEF
+    preBuildScripts:
+      - name: "SwiftFormat"
+        script: |
+          if which swiftformat > /dev/null; then
+            swiftformat . --config .swiftformat 2>/dev/null || true
+          fi
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - name: "SwiftLint"
+        script: |
+          if which swiftlint > /dev/null; then
+            swiftlint
+          fi
+        basedOnDependencyAnalysis: false
+
+  MBCTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: MBCTests
+    dependencies:
+      - target: MBC
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.liauli.mbc.tests
+        GENERATE_INFOPLIST_FILE: true
