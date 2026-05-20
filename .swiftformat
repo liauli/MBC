@@ -1,0 +1,43 @@
+--swiftversion 5.9
+--minversion 0.54
+
+# File options
+--exclude build,Pods,fastlane,MBCTests/Mocks,.build,vendor
+
+# Format rules
+--enable blankLinesBetweenScopes
+--enable consecutiveBlankLines
+--enable consecutiveSpaces
+--enable duplicateImports
+--enable emptyBraces
+--enable redundantSelf
+--enable redundantReturn
+--enable redundantParens
+--enable sortImports
+--enable trailingCommas
+--enable trailingSpace
+--enable wrapArguments
+--enable wrapAttributes
+--enable braces
+
+# Disable rules that conflict with SwiftLint
+--disable acronyms
+--disable markTypes
+
+# Wrapping
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--closingparen balanced
+--maxwidth 120
+
+# Spacing
+--indent 4
+--tabwidth 4
+--ifdef no-indent
+--stripunusedargs closure-only
+
+# Other
+--self remove
+--importgrouping alpha
+--commas always

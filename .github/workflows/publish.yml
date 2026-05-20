@@ -1,0 +1,25 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  archive:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Archive
+        run: bundle exec fastlane archive
+      - name: Upload xcarchive
+        uses: actions/upload-artifact@v4
+        with:
+          name: MBC.xcarchive
+          path: build/MBC.xcarchive
