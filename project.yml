@@ -50,6 +50,16 @@ targets:
         CODE_SIGN_IDENTITY: "Apple Development"
         CODE_SIGNING_REQUIRED: true
         CODE_SIGN_STYLE: "Automatic"
+    info:
+      path: MBC/Resources/Info.plist
+      properties:
+        UIAppFonts:
+          - Poppins-Regular.ttf
+          - Poppins-Medium.ttf
+          - Poppins-SemiBold.ttf
+          - Poppins-Bold.ttf
+          - TelkomselBatikSans-Bold.ttf
+          - TelkomselBatikSans-Regular.ttf
     dependencies:
       - package: MBCDesignSystem
     entitlements:
