@@ -177,7 +177,7 @@ final class CardRepositoryTests: XCTestCase {
             var card = card
             card.wallet = Wallet(balance: 100_000, lastTopUpAmount: 50000)
             return card
-        }, completion: { result = $0 })
+        }) { result = $0 }
 
         // Then
         XCTAssertEqual(result, .success(updatedCard))
@@ -197,7 +197,7 @@ final class CardRepositoryTests: XCTestCase {
         var result: Result<MemberCard, MBCError>?
         sut.readAndUpdateCard({ _ in
             throw MBCError.insufficientBalance(required: 5000, available: 1000)
-        }, completion: { result = $0 })
+        }) { result = $0 }
 
         // Then
         XCTAssertEqual(result, .failure(.insufficientBalance(required: 5000, available: 1000)))
@@ -210,7 +210,7 @@ final class CardRepositoryTests: XCTestCase {
 
         // When
         var result: Result<MemberCard, MBCError>?
-        sut.readAndUpdateCard({ $0 }, completion: { result = $0 })
+        sut.readAndUpdateCard({ $0 }) { result = $0 }
 
         // Then
         XCTAssertEqual(result, .failure(.nfcReadFailed))
@@ -229,7 +229,7 @@ final class CardRepositoryTests: XCTestCase {
 
         // When
         var result: Result<MemberCard, MBCError>?
-        sut.readAndUpdateCard({ $0 }, completion: { result = $0 })
+        sut.readAndUpdateCard({ $0 }) { result = $0 }
 
         // Then
         XCTAssertEqual(result, .failure(.nfcWriteFailed))
