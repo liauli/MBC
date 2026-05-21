@@ -9,6 +9,7 @@ enum MBCError: Error, Equatable {
     case notCheckedIn
     case insufficientBalance(required: Int, available: Int)
     case invalidName
+    case invalidAmount
     case serializationFailed
     case deserializationFailed
     case encryptionFailed
