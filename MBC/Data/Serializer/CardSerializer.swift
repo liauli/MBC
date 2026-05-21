@@ -113,13 +113,9 @@ final class CardSerializer: CardSerializerProtocol {
 
     private func decodeWallet(_ data: Data, offset: inout Int) throws -> Wallet {
         guard data.count >= offset + 8 else { throw MBCError.deserializationFailed }
-        let balance = data.withUnsafeBytes { buf in
-            buf.load(fromByteOffset: offset, as: Int32.self)
-        }
+        let balance = readInt32(from: data, at: offset)
         offset += 4
-        let lastTopUp = data.withUnsafeBytes { buf in
-            buf.load(fromByteOffset: offset, as: Int32.self)
-        }
+        let lastTopUp = readInt32(from: data, at: offset)
         offset += 4
         return Wallet(balance: Int(balance), lastTopUpAmount: Int(lastTopUp))
     }
@@ -148,9 +144,7 @@ final class CardSerializer: CardSerializerProtocol {
                 throw MBCError.deserializationFailed
             }
             offset += 1
-            let amount = data.withUnsafeBytes { buf in
-                buf.load(fromByteOffset: offset, as: Int32.self)
-            }
+            let amount = readInt32(from: data, at: offset)
             offset += 4
             let timestamp = try decodeDate(data, offset: &offset)
             transactions.append(Transaction(type: type, amount: Int(amount), timestamp: timestamp))
@@ -160,19 +154,41 @@ final class CardSerializer: CardSerializerProtocol {
 
     private func decodeCounter(_ data: Data, offset: inout Int) throws -> UInt16 {
         guard data.count >= offset + 2 else { throw MBCError.deserializationFailed }
-        let value = data.withUnsafeBytes { buf in
-            buf.load(fromByteOffset: offset, as: UInt16.self)
-        }
+        let value = readUInt16(from: data, at: offset)
         offset += 2
         return value
     }
 
     private func decodeDate(_ data: Data, offset: inout Int) throws -> Date {
         guard data.count >= offset + 8 else { throw MBCError.deserializationFailed }
-        let interval = data.withUnsafeBytes { buf in
-            buf.load(fromByteOffset: offset, as: Int64.self)
-        }
+        let interval = readInt64(from: data, at: offset)
         offset += 8
         return Date(timeIntervalSince1970: TimeInterval(interval))
+    }
+
+    // MARK: - Safe Byte Reading
+
+    private func readInt32(from data: Data, at offset: Int) -> Int32 {
+        var value: Int32 = 0
+        withUnsafeMutableBytes(of: &value) { dest in
+            data.copyBytes(to: dest, from: offset ..< offset + 4)
+        }
+        return value
+    }
+
+    private func readUInt16(from data: Data, at offset: Int) -> UInt16 {
+        var value: UInt16 = 0
+        withUnsafeMutableBytes(of: &value) { dest in
+            data.copyBytes(to: dest, from: offset ..< offset + 2)
+        }
+        return value
+    }
+
+    private func readInt64(from data: Data, at offset: Int) -> Int64 {
+        var value: Int64 = 0
+        withUnsafeMutableBytes(of: &value) { dest in
+            data.copyBytes(to: dest, from: offset ..< offset + 8)
+        }
+        return value
     }
 }
