@@ -3,6 +3,9 @@ name: Publish
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   archive:
     runs-on: macos-15
