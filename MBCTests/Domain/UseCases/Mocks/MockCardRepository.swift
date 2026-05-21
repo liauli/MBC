@@ -3,12 +3,26 @@ import Foundation
 
 final class MockCardRepository: CardRepositoryProtocol {
     var readResult: Result<MemberCard, MBCError> = .failure(.nfcReadFailed)
+    var readCardResult: Result<MemberCard, MBCError> {
+        get { readResult }
+        set { readResult = newValue }
+    }
+
     var writeResult: Result<Void, MBCError> = .success(())
+    var writeCardResult: Result<Void, MBCError> {
+        get { writeResult }
+        set { writeResult = newValue }
+    }
+
     var readAndUpdateResult: Result<MemberCard, MBCError>?
     var readCalled = false
     var writeCalled = false
     var readAndUpdateCalled = false
     var lastWrittenCard: MemberCard?
+    var writtenCard: MemberCard? {
+        get { lastWrittenCard }
+        set { lastWrittenCard = newValue }
+    }
 
     func readCard(completion: @escaping (Result<MemberCard, MBCError>) -> Void) {
         readCalled = true
@@ -26,16 +40,13 @@ final class MockCardRepository: CardRepositoryProtocol {
         completion: @escaping (Result<MemberCard, MBCError>) -> Void
     ) {
         readAndUpdateCalled = true
-        switch readResult {
+        let sourceResult = readAndUpdateResult ?? readResult
+        switch sourceResult {
         case let .success(card):
             do {
                 let updatedCard = try update(card)
                 lastWrittenCard = updatedCard
-                if let overrideResult = readAndUpdateResult {
-                    completion(overrideResult)
-                } else {
-                    completion(.success(updatedCard))
-                }
+                completion(.success(updatedCard))
             } catch let error as MBCError {
                 completion(.failure(error))
             } catch {
