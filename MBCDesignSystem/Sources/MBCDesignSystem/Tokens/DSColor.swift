@@ -47,7 +47,7 @@ public enum DSColor {
     }
 }
 
-extension Color {
+public extension Color {
     init(hex: UInt, alpha: Double = 1.0) {
         self.init(
             .sRGB,
