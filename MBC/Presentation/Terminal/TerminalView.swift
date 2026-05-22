@@ -3,10 +3,11 @@ import SwiftUI
 
 struct TerminalView: View {
     @StateObject private var viewModel = ViewModelProvider.instance.provideTerminalViewModel()
+    @State private var showLockConfirm = false
 
     var body: some View {
         VStack(spacing: DSSpacing.lg) {
-            lockHeader
+            topBar
             mainContent
         }
         .padding()
@@ -15,21 +16,39 @@ struct TerminalView: View {
         .navigationTitle("Terminal")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(viewModel.isLocked)
+        .alert(isPresented: $showLockConfirm) {
+            Alert(
+                title: Text("Kunci Layar?"),
+                message: Text("Navigasi akan dinonaktifkan.\nTekan lama ikon kunci untuk membuka."),
+                primaryButton: .destructive(Text("Kunci")) { viewModel.lock() },
+                secondaryButton: .cancel(Text("Batal"))
+            )
+        }
     }
 
-    private var lockHeader: some View {
+    private var topBar: some View {
         HStack {
             Spacer()
-            Button(action: handleLockTap) {
-                Image(systemName: viewModel.isLocked ? "lock.fill" : "lock.open.fill")
-                    .font(.system(size: 22))
-                    .foregroundColor(viewModel.isLocked ? DSColor.primary : DSColor.success)
-            }
-            .simultaneousGesture(
-                LongPressGesture(minimumDuration: 1.0).onEnded { _ in
+            lockIcon
+        }
+    }
+
+    @ViewBuilder
+    private var lockIcon: some View {
+        if viewModel.isLocked {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 22))
+                .foregroundColor(DSColor.primary)
+                .onLongPressGesture(minimumDuration: 1.0) {
                     viewModel.unlock()
                 }
-            )
+        } else {
+            Image(systemName: "lock.open.fill")
+                .font(.system(size: 22))
+                .foregroundColor(DSColor.success)
+                .onTapGesture {
+                    showLockConfirm = true
+                }
         }
     }
 
@@ -82,12 +101,6 @@ struct TerminalView: View {
         ResultBanner(icon: "❌", title: "Gagal", subtitle: message, isSuccess: false)
         Button("Kembali") { viewModel.reset() }
             .buttonStyle(DSButtonStyle(.outline))
-    }
-
-    private func handleLockTap() {
-        if !viewModel.isLocked {
-            viewModel.lock()
-        }
     }
 
     private func formatDuration(_ seconds: TimeInterval) -> String {

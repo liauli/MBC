@@ -3,10 +3,11 @@ import SwiftUI
 
 struct GateView: View {
     @StateObject private var viewModel = ViewModelProvider.instance.provideGateViewModel()
+    @State private var showLockConfirm = false
 
     var body: some View {
         VStack(spacing: DSSpacing.lg) {
-            lockHeader
+            topBar
             mainContent
         }
         .padding()
@@ -15,21 +16,42 @@ struct GateView: View {
         .navigationTitle("Gate")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(viewModel.isLocked)
+        .alert(isPresented: $showLockConfirm) {
+            Alert(
+                title: Text("Kunci Layar?"),
+                message: Text("Navigasi akan dinonaktifkan.\nTekan lama ikon kunci untuk membuka."),
+                primaryButton: .destructive(Text("Kunci")) { viewModel.lock() },
+                secondaryButton: .cancel(Text("Batal"))
+            )
+        }
     }
 
-    private var lockHeader: some View {
+    private var topBar: some View {
         HStack {
+            Toggle("Simulasi", isOn: $viewModel.isSimulationMode)
+                .font(DSFont.caption)
+                .toggleStyle(SwitchToggleStyle(tint: DSColor.warning))
             Spacer()
-            Button(action: handleLockTap) {
-                Image(systemName: viewModel.isLocked ? "lock.fill" : "lock.open.fill")
-                    .font(.system(size: 22))
-                    .foregroundColor(viewModel.isLocked ? DSColor.primary : DSColor.success)
-            }
-            .simultaneousGesture(
-                LongPressGesture(minimumDuration: 1.0).onEnded { _ in
+            lockIcon
+        }
+    }
+
+    @ViewBuilder
+    private var lockIcon: some View {
+        if viewModel.isLocked {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 22))
+                .foregroundColor(DSColor.primary)
+                .onLongPressGesture(minimumDuration: 1.0) {
                     viewModel.unlock()
                 }
-            )
+        } else {
+            Image(systemName: "lock.open.fill")
+                .font(.system(size: 22))
+                .foregroundColor(DSColor.success)
+                .onTapGesture {
+                    showLockConfirm = true
+                }
         }
     }
 
@@ -48,17 +70,7 @@ struct GateView: View {
     @ViewBuilder
     private var readySection: some View {
         if viewModel.isSimulationMode {
-            simulationBadge
-        }
-        Toggle("Mode Simulasi", isOn: $viewModel.isSimulationMode)
-            .padding()
-            .background(DSColor.surface)
-            .cornerRadius(DSRadius.md)
-        if viewModel.isSimulationMode {
-            DatePicker("Waktu masuk", selection: $viewModel.simulatedTime, displayedComponents: [.date, .hourAndMinute])
-                .padding()
-                .background(DSColor.surface)
-                .cornerRadius(DSRadius.md)
+            simulationSection
         }
         NFCPromptView(
             icon: "🚪",
@@ -71,18 +83,29 @@ struct GateView: View {
             .disabled(viewModel.state == .scanning)
     }
 
-    private var simulationBadge: some View {
-        HStack(spacing: DSSpacing.xs) {
-            Text("⚠️")
-            Text("MODE SIMULASI AKTIF")
-                .font(DSFont.caption)
-                .fontWeight(.semibold)
+    private var simulationSection: some View {
+        VStack(spacing: DSSpacing.sm) {
+            HStack(spacing: DSSpacing.xs) {
+                Text("⚠️")
+                Text("MODE SIMULASI AKTIF")
+                    .font(DSFont.caption)
+                    .fontWeight(.semibold)
+            }
+            .foregroundColor(DSColor.warning)
+            .padding(.horizontal, DSSpacing.md)
+            .padding(.vertical, DSSpacing.sm)
+            .background(DSColor.warningLight)
+            .cornerRadius(DSRadius.sm)
+
+            DatePicker(
+                "Waktu masuk",
+                selection: $viewModel.simulatedTime,
+                displayedComponents: [.date, .hourAndMinute]
+            )
+            .padding()
+            .background(DSColor.surface)
+            .cornerRadius(DSRadius.md)
         }
-        .foregroundColor(DSColor.warning)
-        .padding(.horizontal, DSSpacing.md)
-        .padding(.vertical, DSSpacing.sm)
-        .background(DSColor.warningLight)
-        .cornerRadius(DSRadius.sm)
     }
 
     @ViewBuilder
@@ -102,11 +125,5 @@ struct GateView: View {
         ResultBanner(icon: "❌", title: "Gagal", subtitle: message, isSuccess: false)
         Button("Coba Lagi") { viewModel.reset() }
             .buttonStyle(DSButtonStyle(.outline))
-    }
-
-    private func handleLockTap() {
-        if !viewModel.isLocked {
-            viewModel.lock()
-        }
     }
 }
