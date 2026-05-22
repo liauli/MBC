@@ -24,4 +24,20 @@ final class MockNFCService: NFCServiceProtocol {
         case let .failure(error): throw error
         }
     }
+
+    func readAndWrite(_ transform: @escaping (Data) throws -> Data) async throws -> Data {
+        readCallCount += 1
+        switch readResult {
+        case let .success(data):
+            let output = try transform(data)
+            writeCallCount += 1
+            writtenData = output
+            switch writeResult {
+            case .success: return output
+            case let .failure(error): throw error
+            }
+        case let .failure(error):
+            throw error
+        }
+    }
 }

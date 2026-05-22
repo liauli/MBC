@@ -39,7 +39,7 @@ final class StationViewModel: ObservableObject {
                 let card = try await registerMemberUseCase.execute(name: name)
                 state = .registerSuccess(card)
             } catch let error as MBCError {
-                state = .error(error.localizedDescription)
+                state = .error(error.userMessage)
             } catch {
                 state = .error("Gagal mendaftarkan anggota")
             }
@@ -53,7 +53,7 @@ final class StationViewModel: ObservableObject {
                 let card = try await readCardUseCase.execute()
                 state = .topUpReady(card)
             } catch let error as MBCError {
-                state = .error(error.localizedDescription)
+                state = .error(error.userMessage)
             } catch {
                 state = .error("Gagal membaca kartu")
             }
@@ -67,7 +67,7 @@ final class StationViewModel: ObservableObject {
                 let card = try await topUpUseCase.execute(amount: amount)
                 state = .topUpSuccess(card)
             } catch let error as MBCError {
-                state = .error(error.localizedDescription)
+                state = .error(error.userMessage)
             } catch {
                 state = .error("Gagal top-up")
             }

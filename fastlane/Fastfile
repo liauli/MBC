@@ -15,7 +15,8 @@ platform :ios do
       output_directory: './test_output',
       result_bundle: true,
       code_coverage: true,
-      xcargs: "CODE_SIGNING_ALLOWED=NO"
+      cloned_source_packages_path: "SourcePackages",
+      xcargs: "CODE_SIGNING_ALLOWED=NO -skipPackagePluginValidation"
     )
   end
 
