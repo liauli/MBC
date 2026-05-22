@@ -49,6 +49,9 @@ jobs:
       - name: Resolve SPM packages
         run: xcodebuild -resolvePackageDependencies -scheme MBC -project MBC.xcodeproj -clonedSourcePackagesDirPath SourcePackages
       - name: Run tests
+        env:
+          FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 120
+          FASTLANE_XCODEBUILD_SETTINGS_RETRIES: 10
         run: bundle exec fastlane unit_tests
       - name: Convert Coverage to SonarQube Format
         run: |
