@@ -1,0 +1,125 @@
+// MARK: - Home
+"home.title" = "MBC";
+"home.subtitle" = "Select operation mode:";
+"home.station" = "Station";
+"home.station.desc" = "Cooperative Admin";
+"home.gate" = "Gate";
+"home.gate.desc" = "Entry Gate";
+"home.terminal" = "Terminal";
+"home.terminal.desc" = "Exit Gate";
+"home.scout" = "Scout";
+"home.scout.desc" = "Check Card";
+
+// MARK: - PIN
+"pin.create" = "Create PIN";
+"pin.enter" = "Enter PIN";
+"pin.confirm" = "Confirm PIN";
+"pin.subtitle" = "4-digit PIN to secure Station access";
+"pin.wrong" = "Wrong PIN. %d attempts remaining.";
+"pin.locked" = "Too many attempts. Wait 30 seconds.";
+"pin.mismatch" = "PIN does not match";
+"pin.change" = "Change PIN";
+"pin.old" = "Current PIN";
+"pin.new" = "New PIN";
+
+// MARK: - Station
+"station.title" = "Station";
+"station.subtitle" = "Cooperative Admin";
+"station.register" = "Register New Member";
+"station.register.desc" = "Register new NFC card";
+"station.topup" = "Top Up Balance";
+"station.topup.desc" = "Top up member balance";
+"station.changepin" = "Change PIN";
+"station.changepin.desc" = "Change Station access PIN";
+
+// MARK: - Register
+"register.title" = "Register Member";
+"register.scan.prompt" = "Place card\nto check status";
+"register.scan.button" = "Scan Card";
+"register.name.label" = "Member Name";
+"register.name.placeholder" = "Enter full name";
+"register.name.hint" = "Max. 32 characters";
+"register.submit" = "Register to Card";
+"register.success" = "Success!";
+"register.success.subtitle" = "Card registered for:\n%@";
+"register.again" = "Register Another";
+"register.exists" = "Card Already Registered";
+
+// MARK: - Top Up
+"topup.title" = "Top Up";
+"topup.scan.prompt" = "Place member card\nto check balance";
+"topup.scan.button" = "Scan Card";
+"topup.select" = "Select Amount";
+"topup.custom" = "Or enter manually";
+"topup.confirm" = "Place Card to Top Up";
+"topup.success" = "Top Up Successful!";
+"topup.done" = "Done";
+
+// MARK: - Gate
+"gate.title" = "Gate";
+"gate.subtitle" = "Entry Gate";
+"gate.scan.prompt" = "Place member card\nto check in";
+"gate.scan.button" = "Tap Card";
+"gate.simulation" = "Simulation";
+"gate.simulation.active" = "SIMULATION MODE ACTIVE";
+"gate.simulation.time" = "Check-in time";
+"gate.success" = "Welcome, %@!";
+"gate.success.subtitle" = "Check-in successful";
+"gate.next" = "Ready for Next";
+
+// MARK: - Terminal
+"terminal.title" = "Terminal";
+"terminal.subtitle" = "Exit Gate";
+"terminal.scan.prompt" = "Place member card\nto check out";
+"terminal.scan.button" = "Tap Card";
+"terminal.success" = "Thank you, %@!";
+"terminal.success.subtitle" = "Have a safe trip.";
+"terminal.receipt" = "Receipt";
+"terminal.duration" = "Duration";
+"terminal.tariff" = "Tariff (%d hrs × Rp 2,000)";
+"terminal.balance.after" = "Balance after";
+"terminal.done" = "Done";
+
+// MARK: - Scout
+"scout.title" = "Scout";
+"scout.scan.prompt" = "Place card\nto view info";
+"scout.scan.button" = "Scan Card";
+"scout.scan.again" = "Scan Again";
+"scout.balance" = "Balance";
+"scout.history" = "Recent History";
+"scout.no.transactions" = "No transactions yet";
+"scout.status.idle" = "○ Inactive";
+"scout.status.checkedin" = "● Checked In";
+
+// MARK: - Transaction Types
+"tx.topup" = "Top-up";
+"tx.checkin" = "Check In";
+"tx.checkout" = "Check Out";
+
+// MARK: - Lock
+"lock.confirm.title" = "Lock Screen?";
+"lock.confirm.message" = "Navigation will be disabled.\nLong press the lock icon to unlock.";
+"lock.confirm.lock" = "Lock";
+"lock.confirm.cancel" = "Cancel";
+
+// MARK: - Common
+"common.close" = "Close";
+"common.back" = "Back";
+"common.retry" = "Try Again";
+"common.failed" = "Failed";
+"common.processing" = "Processing...";
+
+// MARK: - Errors
+"error.nfc.unavailable" = "Device does not support NFC";
+"error.nfc.read" = "Failed to read card. Try again.";
+"error.nfc.write" = "Failed to write to card. Try again.";
+"error.card.unregistered" = "Card not registered. Please register at Station.";
+"error.already.checkedin" = "Card already checked in. Please check out first.";
+"error.not.checkedin" = "Card not checked in.";
+"error.insufficient.balance" = "Insufficient balance. Need Rp %@, balance Rp %@.";
+"error.invalid.name" = "Invalid name. Enter 1-32 characters.";
+"error.invalid.amount" = "Invalid amount.";
+"error.serialization" = "Failed to process card data.";
+"error.deserialization" = "Card data corrupted or unrecognized.";
+"error.encryption" = "Failed to encrypt data.";
+"error.decryption" = "Failed to decrypt card data.";
