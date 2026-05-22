@@ -16,6 +16,8 @@ platform :ios do
       result_bundle: true,
       code_coverage: true,
       cloned_source_packages_path: "SourcePackages",
+      derived_data_path: "./DerivedData",
+      device: "iPhone 16",
       xcargs: "CODE_SIGNING_ALLOWED=NO -skipPackagePluginValidation"
     )
   end

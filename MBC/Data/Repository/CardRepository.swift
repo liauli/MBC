@@ -16,31 +16,63 @@ final class CardRepository: CardRepositoryProtocol {
     }
 
     func readCard() async throws -> MemberCard {
-        let encryptedData = try await nfcService.read()
-        return try decryptAndDeserialize(encryptedData)
+        let raw = try await nfcService.read()
+        return try verifyAndDecrypt(raw)
     }
 
     func writeCard(_ card: MemberCard) async throws {
-        let data = try serializeAndEncrypt(card)
+        let data = try encryptAndSign(card)
         try await nfcService.write(data)
     }
 
     func readAndUpdateCard(_ update: @escaping (MemberCard) throws -> MemberCard) async throws -> MemberCard {
-        let outputData = try await nfcService.readAndWrite { [self] encryptedData in
-            let card = try decryptAndDeserialize(encryptedData)
-            let updatedCard = try update(card)
-            return try serializeAndEncrypt(updatedCard)
+        let cryptoService = cryptoService
+        let serializer = serializer
+        var updatedCard: MemberCard!
+        _ = try await nfcService.readAndWrite { raw in
+            let card = try Self.verifyAndDecrypt(raw, crypto: cryptoService, serializer: serializer)
+            updatedCard = try update(card)
+            return try Self.encryptAndSign(updatedCard, crypto: cryptoService, serializer: serializer)
         }
-        return try decryptAndDeserialize(outputData)
+        return updatedCard
     }
 
-    private func decryptAndDeserialize(_ data: Data) throws -> MemberCard {
-        let decrypted = try cryptoService.decrypt(data)
-        return try serializer.deserialize(decrypted)
+    // MARK: - HMAC + Encrypt
+
+    private func encryptAndSign(_ card: MemberCard) throws -> Data {
+        try Self.encryptAndSign(card, crypto: cryptoService, serializer: serializer)
     }
 
-    private func serializeAndEncrypt(_ card: MemberCard) throws -> Data {
+    private static func encryptAndSign(
+        _ card: MemberCard,
+        crypto: CryptoServiceProtocol,
+        serializer: CardSerializerProtocol
+    ) throws -> Data {
         let serialized = try serializer.serialize(card)
-        return try cryptoService.encrypt(serialized)
+        let encrypted = try crypto.encrypt(serialized)
+        let hmac = crypto.hmac(encrypted)
+        return encrypted + hmac
+    }
+
+    // MARK: - Verify + Decrypt
+
+    private func verifyAndDecrypt(_ data: Data) throws -> MemberCard {
+        try Self.verifyAndDecrypt(data, crypto: cryptoService, serializer: serializer)
+    }
+
+    private static func verifyAndDecrypt(
+        _ data: Data,
+        crypto: CryptoServiceProtocol,
+        serializer: CardSerializerProtocol
+    ) throws -> MemberCard {
+        let hmacSize = 32
+        guard data.count > hmacSize else { throw MBCError.deserializationFailed }
+        let encrypted = data.prefix(data.count - hmacSize)
+        let storedHMAC = Data(data.suffix(hmacSize))
+        guard crypto.verifyHMAC(encrypted, expected: storedHMAC) else {
+            throw MBCError.decryptionFailed
+        }
+        let decrypted = try crypto.decrypt(encrypted)
+        return try serializer.deserialize(decrypted)
     }
 }

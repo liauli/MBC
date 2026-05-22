@@ -2,32 +2,47 @@ import CryptoKit
 import Foundation
 
 final class CryptoService: CryptoServiceProtocol {
-    private let key: SymmetricKey
-
-    init(key: SymmetricKey = CryptoService.defaultKey) {
-        self.key = key
+    private var key: SymmetricKey {
+        let part1: [UInt8] = [
+            0xA3, 0x7F, 0x1B, 0xC4, 0x9E, 0x52, 0xD8, 0x6A,
+            0xF1, 0x3D, 0x84, 0xB7, 0x2C, 0xE9, 0x56, 0x0F,
+            0x73, 0xAB, 0x48, 0xDE, 0x91, 0x65, 0xC2, 0x37,
+            0x8A, 0xF4, 0x1E, 0xD0, 0x59, 0xBC, 0x26, 0x7D,
+        ]
+        let part2: [UInt8] = [
+            0xD1, 0x4E, 0x82, 0xA9, 0xF3, 0x67, 0x1C, 0xB5,
+            0x28, 0x9A, 0xE6, 0x43, 0x7F, 0xD2, 0x0B, 0x64,
+            0xAC, 0x39, 0xF7, 0x5E, 0xC1, 0x86, 0x4D, 0xEB,
+            0x10, 0x73, 0xA8, 0x5F, 0x2E, 0x94, 0xD6, 0x41,
+        ]
+        let raw = zip(part1, part2).map { $0 ^ $1 }
+        return SymmetricKey(data: Data(raw))
     }
 
     func encrypt(_ data: Data) throws -> Data {
-        let sealedBox = try AES.GCM.seal(data, using: key)
-        guard let combined = sealedBox.combined else {
-            throw CryptoError.encryptionFailed
+        guard let sealed = try? AES.GCM.seal(data, using: key),
+              let combined = sealed.combined
+        else {
+            throw MBCError.encryptionFailed
         }
         return combined
     }
 
     func decrypt(_ data: Data) throws -> Data {
-        let sealedBox = try AES.GCM.SealedBox(combined: data)
-        return try AES.GCM.open(sealedBox, using: key)
+        guard let box = try? AES.GCM.SealedBox(combined: data),
+              let decrypted = try? AES.GCM.open(box, using: key)
+        else {
+            throw MBCError.decryptionFailed
+        }
+        return decrypted
     }
 
-    private static var defaultKey: SymmetricKey {
-        let seed: [UInt8] = [
-            0x4D, 0x42, 0x43, 0x2D, 0x4B, 0x6F, 0x70, 0x65,
-            0x72, 0x61, 0x73, 0x69, 0x2D, 0x44, 0x65, 0x73,
-            0x61, 0x2D, 0x32, 0x30, 0x32, 0x36, 0x2D, 0x4B,
-            0x65, 0x79, 0x2D, 0x53, 0x65, 0x65, 0x64, 0x21,
-        ]
-        return SymmetricKey(data: Data(seed))
+    func hmac(_ data: Data) -> Data {
+        let auth = HMAC<SHA256>.authenticationCode(for: data, using: key)
+        return Data(auth)
+    }
+
+    func verifyHMAC(_ data: Data, expected: Data) -> Bool {
+        hmac(data) == expected
     }
 }
