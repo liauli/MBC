@@ -33,27 +33,21 @@ final class StationViewModelTests: XCTestCase {
         mockReadCard.result = .success(card)
 
         sut.scanForRegister()
-        await Task.yield()
-
-        XCTAssertEqual(sut.state, .cardExists(card))
+        await fulfillment(of: sut, matching: { $0.state == .cardExists(card) })
     }
 
     func test_scanForRegister_cardNotRegistered_setsCardBlank() async {
         mockReadCard.result = .failure(.cardNotRegistered)
 
         sut.scanForRegister()
-        await Task.yield()
-
-        XCTAssertEqual(sut.state, .cardBlank)
+        await fulfillment(of: sut, matching: { $0.state == .cardBlank })
     }
 
     func test_scanForRegister_nfcFails_setsCardBlank() async {
         mockReadCard.result = .failure(.nfcReadFailed)
 
         sut.scanForRegister()
-        await Task.yield()
-
-        XCTAssertEqual(sut.state, .cardBlank)
+        await fulfillment(of: sut, matching: { $0.state == .cardBlank })
     }
 
     // MARK: - register
@@ -63,20 +57,14 @@ final class StationViewModelTests: XCTestCase {
         mockRegister.result = .success(card)
 
         sut.register(name: "Ahmad")
-        await Task.yield()
-
-        XCTAssertEqual(sut.state, .registerSuccess(card))
+        await fulfillment(of: sut, matching: { $0.state == .registerSuccess(card) })
     }
 
     func test_register_failure_setsError() async {
         mockRegister.result = .failure(.invalidName)
 
         sut.register(name: "")
-        await Task.yield()
-
-        if case .error = sut.state {} else {
-            XCTFail("Expected error state")
-        }
+        await fulfillment(of: sut, matching: { if case .error = $0.state { return true }; return false })
     }
 
     // MARK: - readForTopUp
@@ -86,20 +74,14 @@ final class StationViewModelTests: XCTestCase {
         mockReadCard.result = .success(card)
 
         sut.readForTopUp()
-        await Task.yield()
-
-        XCTAssertEqual(sut.state, .topUpReady(card))
+        await fulfillment(of: sut, matching: { $0.state == .topUpReady(card) })
     }
 
     func test_readForTopUp_failure_setsError() async {
         mockReadCard.result = .failure(.nfcReadFailed)
 
         sut.readForTopUp()
-        await Task.yield()
-
-        if case .error = sut.state {} else {
-            XCTFail("Expected error state")
-        }
+        await fulfillment(of: sut, matching: { if case .error = $0.state { return true }; return false })
     }
 
     // MARK: - confirmTopUp
@@ -109,20 +91,14 @@ final class StationViewModelTests: XCTestCase {
         mockTopUp.result = .success(card)
 
         sut.confirmTopUp(amount: 20000)
-        await Task.yield()
-
-        XCTAssertEqual(sut.state, .topUpSuccess(card))
+        await fulfillment(of: sut, matching: { $0.state == .topUpSuccess(card) })
     }
 
     func test_confirmTopUp_failure_setsError() async {
         mockTopUp.result = .failure(.nfcWriteFailed)
 
         sut.confirmTopUp(amount: 20000)
-        await Task.yield()
-
-        if case .error = sut.state {} else {
-            XCTFail("Expected error state")
-        }
+        await fulfillment(of: sut, matching: { if case .error = $0.state { return true }; return false })
     }
 
     // MARK: - reset
@@ -130,7 +106,7 @@ final class StationViewModelTests: XCTestCase {
     func test_reset_setsIdle() async {
         mockReadCard.result = .failure(.nfcReadFailed)
         sut.readForTopUp()
-        await Task.yield()
+        await fulfillment(of: sut, matching: { if case .error = $0.state { return true }; return false })
 
         sut.reset()
 
@@ -151,5 +127,17 @@ final class StationViewModelTests: XCTestCase {
             transactions: [],
             writeCounter: 1
         )
+    }
+
+    private func fulfillment(
+        of viewModel: StationViewModel,
+        matching predicate: @escaping (StationViewModel) -> Bool,
+        timeout: TimeInterval = 2
+    ) async {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !predicate(viewModel), Date() < deadline {
+            await Task.yield()
+        }
+        XCTAssertTrue(predicate(viewModel), "State did not match within \(timeout)s. Current: \(viewModel.state)")
     }
 }

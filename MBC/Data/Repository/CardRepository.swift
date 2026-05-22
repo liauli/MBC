@@ -28,12 +28,13 @@ final class CardRepository: CardRepositoryProtocol {
     func readAndUpdateCard(_ update: @escaping (MemberCard) throws -> MemberCard) async throws -> MemberCard {
         let cryptoService = cryptoService
         let serializer = serializer
-        let outputData = try await nfcService.readAndWrite { raw in
+        var updatedCard: MemberCard!
+        _ = try await nfcService.readAndWrite { raw in
             let card = try Self.verifyAndDecrypt(raw, crypto: cryptoService, serializer: serializer)
-            let updatedCard = try update(card)
+            updatedCard = try update(card)
             return try Self.encryptAndSign(updatedCard, crypto: cryptoService, serializer: serializer)
         }
-        return try verifyAndDecrypt(outputData)
+        return updatedCard
     }
 
     // MARK: - HMAC + Encrypt
