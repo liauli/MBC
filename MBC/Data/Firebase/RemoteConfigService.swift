@@ -3,9 +3,7 @@ import Foundation
 
 protocol RemoteConfigServiceProtocol {
     func fetchAndActivate(completion: @escaping (Result<Void, Error>) -> Void)
-    func string(forKey key: String) -> String
     func bool(forKey key: String) -> Bool
-    func int(forKey key: String) -> Int
 }
 
 final class RemoteConfigService: RemoteConfigServiceProtocol {
@@ -32,15 +30,7 @@ final class RemoteConfigService: RemoteConfigServiceProtocol {
         }
     }
 
-    func string(forKey key: String) -> String {
-        remoteConfig.configValue(forKey: key).stringValue ?? ""
-    }
-
     func bool(forKey key: String) -> Bool {
         remoteConfig.configValue(forKey: key).boolValue
-    }
-
-    func int(forKey key: String) -> Int {
-        remoteConfig.configValue(forKey: key).numberValue.intValue
     }
 }
