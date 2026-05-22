@@ -21,10 +21,10 @@ struct PINSetupView: View {
     @ViewBuilder
     private var headerSection: some View {
         Text("🔐").font(.system(size: 48))
-        Text(isConfirming ? "Konfirmasi PIN" : "Buat PIN")
+        Text(isConfirming ? getString("pin.confirm") : getString("pin.create"))
             .font(DSFont.title)
             .foregroundColor(DSColor.textPrimary)
-        Text("PIN 4 digit untuk mengamankan akses Station")
+        Text(getString("pin.subtitle"))
             .font(DSFont.caption)
             .foregroundColor(DSColor.textSecondary)
             .multilineTextAlignment(.center)
@@ -33,7 +33,7 @@ struct PINSetupView: View {
     @ViewBuilder
     private var errorText: some View {
         if mismatchError {
-            Text("PIN tidak cocok")
+            Text(getString("pin.mismatch"))
                 .font(DSFont.caption)
                 .foregroundColor(DSColor.error)
         } else if case let .error(message) = viewModel.state {

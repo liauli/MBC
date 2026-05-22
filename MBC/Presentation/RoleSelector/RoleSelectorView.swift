@@ -20,10 +20,10 @@ struct RoleSelectorView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: DSSpacing.xs) {
-            Text("MBC")
+            Text(getString("home.title"))
                 .font(DSFont.brand)
                 .foregroundColor(DSColor.secondary)
-            Text("Pilih mode operasi:")
+            Text(getString("home.subtitle"))
                 .font(DSFont.body)
                 .foregroundColor(DSColor.textSecondary)
         }
@@ -36,32 +36,32 @@ struct RoleSelectorView: View {
             NavigationLink(destination: StationGateView()) {
                 RoleCard(
                     icon: "🏪",
-                    title: "Station",
-                    subtitle: "Admin Koperasi",
+                    title: getString("home.station"),
+                    subtitle: getString("home.station.desc"),
                     gradientColors: [DSColor.secondary, Color(hex: 0x0E336C)]
                 )
             }
             NavigationLink(destination: GateView()) {
                 RoleCard(
                     icon: "🚪",
-                    title: "Gate",
-                    subtitle: "Gerbang Masuk",
+                    title: getString("home.gate"),
+                    subtitle: getString("home.gate.desc"),
                     gradientColors: [DSColor.success, Color(hex: 0x00B86B)]
                 )
             }
             NavigationLink(destination: TerminalView()) {
                 RoleCard(
                     icon: "🚏",
-                    title: "Terminal",
-                    subtitle: "Gerbang Keluar",
+                    title: getString("home.terminal"),
+                    subtitle: getString("home.terminal.desc"),
                     gradientColors: [DSColor.info, Color(hex: 0x3381CE)]
                 )
             }
             NavigationLink(destination: ScoutView()) {
                 RoleCard(
                     icon: "👁",
-                    title: "Scout",
-                    subtitle: "Cek Kartu",
+                    title: getString("home.scout"),
+                    subtitle: getString("home.scout.desc"),
                     gradientColors: [DSColor.secondaryLight, DSColor.textSecondary]
                 )
             }

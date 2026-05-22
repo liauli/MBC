@@ -25,13 +25,13 @@ final class CardRepository: CardRepositoryProtocol {
         try await nfcService.write(data)
     }
 
-    func readAndUpdateCard(_ update: (MemberCard) throws -> MemberCard) async throws -> MemberCard {
-        let encryptedData = try await nfcService.read()
-        let card = try decryptAndDeserialize(encryptedData)
-        let updatedCard = try update(card)
-        let data = try serializeAndEncrypt(updatedCard)
-        try await nfcService.write(data)
-        return updatedCard
+    func readAndUpdateCard(_ update: @escaping (MemberCard) throws -> MemberCard) async throws -> MemberCard {
+        let outputData = try await nfcService.readAndWrite { [self] encryptedData in
+            let card = try decryptAndDeserialize(encryptedData)
+            let updatedCard = try update(card)
+            return try serializeAndEncrypt(updatedCard)
+        }
+        return try decryptAndDeserialize(outputData)
     }
 
     private func decryptAndDeserialize(_ data: Data) throws -> MemberCard {
