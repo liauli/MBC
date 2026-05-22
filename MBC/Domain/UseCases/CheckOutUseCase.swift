@@ -11,12 +11,12 @@ final class CheckOutUseCase: CheckOutUseCaseProtocol {
 
     func execute() async throws -> (MemberCard, TariffResult) {
         var tariffResult: TariffResult?
-        let rc = remoteConfig
+        let remoteConfig = remoteConfig
         let updatedCard = try await cardRepository.readAndUpdateCard { card in
             guard case let .checkedIn(checkInTime, _) = card.visitState else {
                 throw MBCError.notCheckedIn
             }
-            let tariff = TariffCalculator.calculate(checkIn: checkInTime, checkOut: Date(), remoteConfig: rc)
+            let tariff = TariffCalculator.calculate(checkIn: checkInTime, checkOut: Date(), remoteConfig: remoteConfig)
             guard card.wallet.balance >= tariff.amount else {
                 throw MBCError.insufficientBalance(required: tariff.amount, available: card.wallet.balance)
             }

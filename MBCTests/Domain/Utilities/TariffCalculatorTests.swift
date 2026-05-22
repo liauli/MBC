@@ -71,7 +71,16 @@ final class TariffCalculatorTests: XCTestCase {
 
 private final class MockRC: RemoteConfigServiceProtocol {
     private let tariff: Int
-    init(tariff: Int) { self.tariff = tariff }
-    func fetchAndActivate(completion: @escaping (Result<Void, Error>) -> Void) { completion(.success(())) }
-    func int(forKey key: String) -> Int { tariff }
+
+    init(tariff: Int) {
+        self.tariff = tariff
+    }
+
+    func fetchAndActivate(completion: @escaping (Result<Void, Error>) -> Void) {
+        completion(.success(()))
+    }
+
+    func int(forKey key: String) -> Int {
+        tariff
+    }
 }
