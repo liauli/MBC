@@ -8,6 +8,7 @@ struct GateView: View {
     var body: some View {
         VStack(spacing: DSSpacing.lg) {
             topBar
+            Spacer()
             mainContent
         }
         .padding()
@@ -72,12 +73,14 @@ struct GateView: View {
         if viewModel.isSimulationMode {
             simulationSection
         }
+        Spacer()
         NFCPromptView(
             icon: "🚪",
             text: "Tempelkan kartu anggota\nuntuk masuk",
             color: viewModel.isSimulationMode ? DSColor.warning : DSColor.primary,
             isScanning: viewModel.state == .scanning
         )
+        Spacer()
         Button("Tap Kartu") { viewModel.performCheckIn() }
             .buttonStyle(DSButtonStyle(.primary))
             .disabled(viewModel.state == .scanning)
