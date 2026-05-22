@@ -2,18 +2,21 @@ import Foundation
 
 final class CheckOutUseCase: CheckOutUseCaseProtocol {
     private let cardRepository: CardRepositoryProtocol
+    private let remoteConfig: RemoteConfigServiceProtocol?
 
-    init(cardRepository: CardRepositoryProtocol) {
+    init(cardRepository: CardRepositoryProtocol, remoteConfig: RemoteConfigServiceProtocol? = nil) {
         self.cardRepository = cardRepository
+        self.remoteConfig = remoteConfig
     }
 
     func execute() async throws -> (MemberCard, TariffResult) {
         var tariffResult: TariffResult?
+        let rc = remoteConfig
         let updatedCard = try await cardRepository.readAndUpdateCard { card in
             guard case let .checkedIn(checkInTime, _) = card.visitState else {
                 throw MBCError.notCheckedIn
             }
-            let tariff = TariffCalculator.calculate(checkIn: checkInTime, checkOut: Date())
+            let tariff = TariffCalculator.calculate(checkIn: checkInTime, checkOut: Date(), remoteConfig: rc)
             guard card.wallet.balance >= tariff.amount else {
                 throw MBCError.insufficientBalance(required: tariff.amount, available: card.wallet.balance)
             }
