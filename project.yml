@@ -78,7 +78,7 @@ targets:
       - name: "SwiftFormat"
         script: |
           if which swiftformat > /dev/null; then
-            swiftformat . --config .swiftformat 2>/dev/null || true
+            swiftformat "$SRCROOT/MBC" --config "$SRCROOT/.swiftformat" 2>/dev/null || true
           fi
         basedOnDependencyAnalysis: false
     postBuildScripts:
