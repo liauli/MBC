@@ -38,6 +38,10 @@ jobs:
         with:
           ruby-version: '3.3'
           bundler-cache: true
+      - name: Inject Firebase secrets
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: sed -i '' "s/\${GOOGLE_API_KEY}/${GOOGLE_API_KEY}/" MBC/Resources/GoogleService-Info.plist
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Generate Xcode project
