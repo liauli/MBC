@@ -23,6 +23,7 @@
 # Disable rules that conflict with SwiftLint
 --disable acronyms
 --disable markTypes
+--disable trailingClosures
 
 # Wrapping
 --wraparguments before-first
