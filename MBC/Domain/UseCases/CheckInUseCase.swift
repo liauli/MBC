@@ -19,6 +19,9 @@ final class CheckInUseCase: CheckInUseCaseProtocol {
             updatedCard.transactions.append(
                 Transaction(type: .checkIn, amount: 0, timestamp: checkInTime)
             )
+            if updatedCard.transactions.count > 5 {
+                updatedCard.transactions.removeFirst(updatedCard.transactions.count - 5)
+            }
             updatedCard.writeCounter += 1
             return updatedCard
         }

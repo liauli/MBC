@@ -10,6 +10,8 @@ enum MBCError: Error, Equatable {
     case insufficientBalance(required: Int, available: Int)
     case invalidName
     case invalidAmount
+    case wrongPin
+    case invalidPin
     case serializationFailed
     case deserializationFailed
     case encryptionFailed
@@ -35,6 +37,10 @@ enum MBCError: Error, Equatable {
             getString("error.invalid.name")
         case .invalidAmount:
             getString("error.invalid.amount")
+        case .wrongPin:
+            getString("error.wrong.pin")
+        case .invalidPin:
+            getString("error.invalid.pin")
         case .serializationFailed:
             getString("error.serialization")
         case .deserializationFailed:
