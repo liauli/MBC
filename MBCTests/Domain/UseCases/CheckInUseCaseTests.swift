@@ -11,65 +11,47 @@ final class CheckInUseCaseTests: XCTestCase {
         sut = CheckInUseCase(cardRepository: mockRepository)
     }
 
-    func test_execute_idleCard_checksIn() {
+    func test_execute_idleCard_checksIn() async throws {
         // Given
-        let card = makeIdleCard()
-        mockRepository.readResult = .success(card)
+        mockRepository.readResult = .success(makeIdleCard())
         let simulatedTime = Date(timeIntervalSince1970: 1_700_000_000)
-        var result: Result<MemberCard, MBCError>?
 
         // When
-        sut.execute(simulatedTime: simulatedTime) { result = $0 }
+        let result = try await sut.execute(simulatedTime: simulatedTime)
 
         // Then
-        guard case let .success(updatedCard) = result else {
-            XCTFail("Expected success")
-            return
-        }
-        XCTAssertEqual(updatedCard.visitState, .checkedIn(time: simulatedTime, isSimulated: true))
-        XCTAssertEqual(updatedCard.transactions.last?.type, .checkIn)
-        XCTAssertEqual(updatedCard.writeCounter, 1)
+        XCTAssertEqual(result.visitState, .checkedIn(time: simulatedTime, isSimulated: true))
+        XCTAssertEqual(result.transactions.last?.type, .checkIn)
+        XCTAssertEqual(result.writeCounter, 1)
     }
 
-    func test_execute_alreadyCheckedIn_fails() {
+    func test_execute_alreadyCheckedIn_throws() async {
         // Given
-        let card = makeCheckedInCard()
-        mockRepository.readResult = .success(card)
-        var result: Result<MemberCard, MBCError>?
+        mockRepository.readResult = .success(makeCheckedInCard())
 
-        // When
-        sut.execute(simulatedTime: nil) { result = $0 }
-
-        // Then
-        guard case let .failure(error) = result else {
-            XCTFail("Expected failure")
-            return
+        // When / Then
+        do {
+            _ = try await sut.execute(simulatedTime: nil)
+            XCTFail("Expected error")
+        } catch {
+            XCTAssertEqual(error as? MBCError, .alreadyCheckedIn)
         }
-        XCTAssertEqual(error, .alreadyCheckedIn)
     }
 
-    func test_execute_noSimulatedTime_usesRealTime() {
+    func test_execute_noSimulatedTime_usesRealTime() async throws {
         // Given
-        let card = makeIdleCard()
-        mockRepository.readResult = .success(card)
-        var result: Result<MemberCard, MBCError>?
+        mockRepository.readResult = .success(makeIdleCard())
 
         // When
-        sut.execute(simulatedTime: nil) { result = $0 }
+        let result = try await sut.execute(simulatedTime: nil)
 
         // Then
-        guard case let .success(updatedCard) = result else {
-            XCTFail("Expected success")
-            return
-        }
-        if case let .checkedIn(_, isSimulated) = updatedCard.visitState {
+        if case let .checkedIn(_, isSimulated) = result.visitState {
             XCTAssertFalse(isSimulated)
         } else {
             XCTFail("Expected checkedIn state")
         }
     }
-
-    // MARK: - Helpers
 
     private func makeIdleCard() -> MemberCard {
         MemberCard(

@@ -11,29 +11,29 @@ final class ReadCardUseCaseTests: XCTestCase {
         sut = ReadCardUseCase(repository: mockRepository)
     }
 
-    func test_execute_success_returnsCard() {
+    func test_execute_success_returnsCard() async throws {
         // Given
         let expectedCard = makeTestCard()
         mockRepository.readCardResult = .success(expectedCard)
 
         // When
-        var result: Result<MemberCard, MBCError>?
-        sut.execute { result = $0 }
+        let result = try await sut.execute()
 
         // Then
-        XCTAssertEqual(result, .success(expectedCard))
+        XCTAssertEqual(result, expectedCard)
     }
 
-    func test_execute_failure_returnsError() {
+    func test_execute_failure_throws() async {
         // Given
         mockRepository.readCardResult = .failure(.nfcReadFailed)
 
-        // When
-        var result: Result<MemberCard, MBCError>?
-        sut.execute { result = $0 }
-
-        // Then
-        XCTAssertEqual(result, .failure(.nfcReadFailed))
+        // When / Then
+        do {
+            _ = try await sut.execute()
+            XCTFail("Expected error")
+        } catch {
+            XCTAssertEqual(error as? MBCError, .nfcReadFailed)
+        }
     }
 
     private func makeTestCard() -> MemberCard {

@@ -11,64 +11,55 @@ final class ChangePinUseCaseTests: XCTestCase {
         sut = ChangePinUseCase(repository: mockRepository)
     }
 
-    func test_execute_firstSetup_nilCurrent_setsPin() {
+    func test_execute_firstSetup_nilCurrent_setsPin() async throws {
         // When
-        var result: Result<Void, MBCError>?
-        sut.execute(currentPin: nil, newPin: "1234") { result = $0 }
+        try await sut.execute(currentPin: nil, newPin: "1234")
 
         // Then
-        switch result {
-        case .success: break
-        default: XCTFail("Expected success")
-        }
         XCTAssertTrue(mockRepository.setPinCalled)
         XCTAssertEqual(mockRepository.storedPin, "1234")
     }
 
-    func test_execute_changePin_correctCurrent_setsNewPin() {
+    func test_execute_changePin_correctCurrent_setsNewPin() async throws {
         // Given
         mockRepository.storedPin = "1234"
 
         // When
-        var result: Result<Void, MBCError>?
-        sut.execute(currentPin: "1234", newPin: "5678") { result = $0 }
+        try await sut.execute(currentPin: "1234", newPin: "5678")
 
         // Then
-        switch result {
-        case .success: break
-        default: XCTFail("Expected success")
-        }
         XCTAssertEqual(mockRepository.storedPin, "5678")
     }
 
-    func test_execute_changePin_wrongCurrent_fails() {
+    func test_execute_changePin_wrongCurrent_throws() async {
         // Given
         mockRepository.storedPin = "1234"
 
-        // When
-        var error: MBCError?
-        sut.execute(currentPin: "0000", newPin: "5678") { if case let .failure(e) = $0 { error = e } }
-
-        // Then
-        XCTAssertEqual(error, .invalidName)
+        // When / Then
+        do {
+            try await sut.execute(currentPin: "0000", newPin: "5678")
+            XCTFail("Expected error")
+        } catch {
+            XCTAssertEqual(error as? MBCError, .invalidName)
+        }
         XCTAssertEqual(mockRepository.storedPin, "1234")
     }
 
-    func test_execute_invalidNewPin_tooShort_fails() {
-        // When
-        var error: MBCError?
-        sut.execute(currentPin: nil, newPin: "12") { if case let .failure(e) = $0 { error = e } }
-
-        // Then
-        XCTAssertEqual(error, .invalidName)
+    func test_execute_invalidNewPin_tooShort_throws() async {
+        do {
+            try await sut.execute(currentPin: nil, newPin: "12")
+            XCTFail("Expected error")
+        } catch {
+            XCTAssertEqual(error as? MBCError, .invalidName)
+        }
     }
 
-    func test_execute_invalidNewPin_nonNumeric_fails() {
-        // When
-        var error: MBCError?
-        sut.execute(currentPin: nil, newPin: "abcd") { if case let .failure(e) = $0 { error = e } }
-
-        // Then
-        XCTAssertEqual(error, .invalidName)
+    func test_execute_invalidNewPin_nonNumeric_throws() async {
+        do {
+            try await sut.execute(currentPin: nil, newPin: "abcd")
+            XCTFail("Expected error")
+        } catch {
+            XCTAssertEqual(error as? MBCError, .invalidName)
+        }
     }
 }

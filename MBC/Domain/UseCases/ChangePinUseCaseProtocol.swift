@@ -1,5 +1,5 @@
 import Foundation
 
 protocol ChangePinUseCaseProtocol {
-    func execute(currentPin: String?, newPin: String, completion: @escaping (Result<Void, MBCError>) -> Void)
+    func execute(currentPin: String?, newPin: String) async throws
 }

@@ -24,36 +24,33 @@ final class MockCardRepository: CardRepositoryProtocol {
         set { lastWrittenCard = newValue }
     }
 
-    func readCard(completion: @escaping (Result<MemberCard, MBCError>) -> Void) {
+    func readCard() async throws -> MemberCard {
         readCalled = true
-        completion(readResult)
+        switch readResult {
+        case let .success(card): return card
+        case let .failure(error): throw error
+        }
     }
 
-    func writeCard(_ card: MemberCard, completion: @escaping (Result<Void, MBCError>) -> Void) {
+    func writeCard(_ card: MemberCard) async throws {
         writeCalled = true
         lastWrittenCard = card
-        completion(writeResult)
+        switch writeResult {
+        case .success: return
+        case let .failure(error): throw error
+        }
     }
 
-    func readAndUpdateCard(
-        _ update: @escaping (MemberCard) throws -> MemberCard,
-        completion: @escaping (Result<MemberCard, MBCError>) -> Void
-    ) {
+    func readAndUpdateCard(_ update: (MemberCard) throws -> MemberCard) async throws -> MemberCard {
         readAndUpdateCalled = true
         let sourceResult = readAndUpdateResult ?? readResult
         switch sourceResult {
         case let .success(card):
-            do {
-                let updatedCard = try update(card)
-                lastWrittenCard = updatedCard
-                completion(.success(updatedCard))
-            } catch let error as MBCError {
-                completion(.failure(error))
-            } catch {
-                completion(.failure(.nfcWriteFailed))
-            }
+            let updatedCard = try update(card)
+            lastWrittenCard = updatedCard
+            return updatedCard
         case let .failure(error):
-            completion(.failure(error))
+            throw error
         }
     }
 }

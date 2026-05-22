@@ -1,5 +1,5 @@
 import Foundation
 
 protocol TopUpUseCaseProtocol {
-    func execute(amount: Int, completion: @escaping (Result<MemberCard, MBCError>) -> Void)
+    func execute(amount: Int) async throws -> MemberCard
 }

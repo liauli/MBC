@@ -3,38 +3,36 @@ import Foundation
 
 final class NFCService: NSObject, NFCServiceProtocol {
     private var session: NFCNDEFReaderSession?
-    private var readCompletion: ((Result<Data, MBCError>) -> Void)?
+    private var continuation: CheckedContinuation<Data, Error>?
+    private var writeContinuation: CheckedContinuation<Void, Error>?
     private var writeData: Data?
-    private var writeCompletion: ((Result<Void, MBCError>) -> Void)?
 
-    func read(completion: @escaping (Result<Data, MBCError>) -> Void) {
+    func read() async throws -> Data {
         guard NFCNDEFReaderSession.readingAvailable else {
-            completion(.failure(.nfcNotAvailable))
-            return
+            throw MBCError.nfcNotAvailable
         }
-        readCompletion = completion
-        writeData = nil
-        writeCompletion = nil
-        session = NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: true)
-        session?.alertMessage = "Tempelkan kartu ke bagian atas iPhone"
-        session?.begin()
+        return try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+            self.writeData = nil
+            self.session = NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: true)
+            self.session?.alertMessage = "Tempelkan kartu ke bagian atas iPhone"
+            self.session?.begin()
+        }
     }
 
-    func write(_ data: Data, completion: @escaping (Result<Void, MBCError>) -> Void) {
+    func write(_ data: Data) async throws {
         guard NFCNDEFReaderSession.readingAvailable else {
-            completion(.failure(.nfcNotAvailable))
-            return
+            throw MBCError.nfcNotAvailable
         }
-        writeData = data
-        writeCompletion = completion
-        readCompletion = nil
-        session = NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: false)
-        session?.alertMessage = "Tempelkan kartu ke bagian atas iPhone"
-        session?.begin()
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.writeContinuation = continuation
+            self.writeData = data
+            self.session = NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: false)
+            self.session?.alertMessage = "Tempelkan kartu ke bagian atas iPhone"
+            self.session?.begin()
+        }
     }
 }
-
-// MARK: - NFCNDEFReaderSessionDelegate
 
 extension NFCService: NFCNDEFReaderSessionDelegate {
     func readerSessionDidBecomeActive(_: NFCNDEFReaderSession) {}
@@ -44,18 +42,18 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
         guard nfcError?.code != .readerSessionInvalidationErrorFirstNDEFTagRead,
               nfcError?.code != .readerSessionInvalidationErrorUserCanceled
         else { return }
-        readCompletion?(.failure(.nfcReadFailed))
-        writeCompletion?(.failure(.nfcWriteFailed))
+        continuation?.resume(throwing: MBCError.nfcReadFailed)
+        writeContinuation?.resume(throwing: MBCError.nfcWriteFailed)
         cleanup()
     }
 
-    func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
+    func readerSession(_: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
         guard let record = messages.first?.records.first else {
-            readCompletion?(.failure(.nfcReadFailed))
+            continuation?.resume(throwing: MBCError.nfcReadFailed)
             cleanup()
             return
         }
-        readCompletion?(.success(record.payload))
+        continuation?.resume(returning: record.payload)
         cleanup()
     }
 
@@ -67,7 +65,7 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
         session.connect(to: tag) { [weak self] error in
             guard error == nil else {
                 session.invalidate(errorMessage: "Koneksi gagal")
-                self?.writeCompletion?(.failure(.nfcWriteFailed))
+                self?.writeContinuation?.resume(throwing: MBCError.nfcWriteFailed)
                 self?.cleanup()
                 return
             }
@@ -81,45 +79,40 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
 
     private func performRead(tag: any NFCNDEFTag, session: NFCNDEFReaderSession) {
         tag.readNDEF { [weak self] message, error in
-            if let error {
-                session.invalidate(errorMessage: "Gagal membaca: \(error.localizedDescription)")
-                self?.readCompletion?(.failure(.nfcReadFailed))
+            if error != nil {
+                session.invalidate(errorMessage: "Gagal membaca kartu")
+                self?.continuation?.resume(throwing: MBCError.nfcReadFailed)
             } else if let record = message?.records.first {
                 session.alertMessage = "Berhasil membaca kartu"
                 session.invalidate()
-                self?.readCompletion?(.success(record.payload))
+                self?.continuation?.resume(returning: record.payload)
             } else {
                 session.invalidate(errorMessage: "Kartu kosong")
-                self?.readCompletion?(.failure(.cardNotRegistered))
+                self?.continuation?.resume(throwing: MBCError.cardNotRegistered)
             }
             self?.cleanup()
         }
     }
 
     private func performWrite(tag: any NFCNDEFTag, session: NFCNDEFReaderSession, data: Data) {
-        let record = NFCNDEFPayload(
-            format: .unknown,
-            type: Data(),
-            identifier: Data(),
-            payload: data
-        )
+        let record = NFCNDEFPayload(format: .unknown, type: Data(), identifier: Data(), payload: data)
         let message = NFCNDEFMessage(records: [record])
         tag.writeNDEF(message) { [weak self] error in
             if error != nil {
                 session.invalidate(errorMessage: "Gagal menulis kartu")
-                self?.writeCompletion?(.failure(.nfcWriteFailed))
+                self?.writeContinuation?.resume(throwing: MBCError.nfcWriteFailed)
             } else {
                 session.alertMessage = "Berhasil menulis kartu"
                 session.invalidate()
-                self?.writeCompletion?(.success(()))
+                self?.writeContinuation?.resume(returning: ())
             }
             self?.cleanup()
         }
     }
 
     private func cleanup() {
-        readCompletion = nil
-        writeCompletion = nil
+        continuation = nil
+        writeContinuation = nil
         writeData = nil
         session = nil
     }

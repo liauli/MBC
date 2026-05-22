@@ -15,80 +15,28 @@ final class CardRepository: CardRepositoryProtocol {
         self.serializer = serializer
     }
 
-    func readCard(completion: @escaping (Result<MemberCard, MBCError>) -> Void) {
-        nfcService.read { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case let .success(encryptedData):
-                completion(decryptAndDeserialize(encryptedData))
-            case let .failure(error):
-                completion(.failure(error))
-            }
-        }
+    func readCard() async throws -> MemberCard {
+        let encryptedData = try await nfcService.read()
+        return try decryptAndDeserialize(encryptedData)
     }
 
-    func writeCard(_ card: MemberCard, completion: @escaping (Result<Void, MBCError>) -> Void) {
-        let data: Data
-        do {
-            data = try serializeAndEncrypt(card)
-        } catch let error as MBCError {
-            completion(.failure(error))
-            return
-        } catch {
-            completion(.failure(.serializationFailed))
-            return
-        }
-        nfcService.write(data, completion: completion)
+    func writeCard(_ card: MemberCard) async throws {
+        let data = try serializeAndEncrypt(card)
+        try await nfcService.write(data)
     }
 
-    func readAndUpdateCard(
-        _ update: @escaping (MemberCard) throws -> MemberCard,
-        completion: @escaping (Result<MemberCard, MBCError>) -> Void
-    ) {
-        nfcService.read { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case let .success(encryptedData):
-                let cardResult = decryptAndDeserialize(encryptedData)
-                switch cardResult {
-                case let .success(card):
-                    do {
-                        let updatedCard = try update(card)
-                        let data = try serializeAndEncrypt(updatedCard)
-                        nfcService.write(data) { writeResult in
-                            switch writeResult {
-                            case .success:
-                                completion(.success(updatedCard))
-                            case let .failure(error):
-                                completion(.failure(error))
-                            }
-                        }
-                    } catch let error as MBCError {
-                        completion(.failure(error))
-                    } catch {
-                        completion(.failure(.serializationFailed))
-                    }
-                case let .failure(error):
-                    completion(.failure(error))
-                }
-            case let .failure(error):
-                completion(.failure(error))
-            }
-        }
+    func readAndUpdateCard(_ update: (MemberCard) throws -> MemberCard) async throws -> MemberCard {
+        let encryptedData = try await nfcService.read()
+        let card = try decryptAndDeserialize(encryptedData)
+        let updatedCard = try update(card)
+        let data = try serializeAndEncrypt(updatedCard)
+        try await nfcService.write(data)
+        return updatedCard
     }
 
-    // MARK: - Private
-
-    private func decryptAndDeserialize(_ data: Data) -> Result<MemberCard, MBCError> {
-        do {
-            let decrypted = try cryptoService.decrypt(data)
-            let card = try serializer.deserialize(decrypted)
-            return .success(card)
-        } catch let error as MBCError {
-            return .failure(error)
-        } catch {
-            return .failure(.decryptionFailed)
-        }
+    private func decryptAndDeserialize(_ data: Data) throws -> MemberCard {
+        let decrypted = try cryptoService.decrypt(data)
+        return try serializer.deserialize(decrypted)
     }
 
     private func serializeAndEncrypt(_ card: MemberCard) throws -> Data {

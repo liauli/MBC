@@ -7,7 +7,7 @@ final class ReadCardUseCase: ReadCardUseCaseProtocol {
         self.repository = repository
     }
 
-    func execute(completion: @escaping (Result<MemberCard, MBCError>) -> Void) {
-        repository.readCard(completion: completion)
+    func execute() async throws -> MemberCard {
+        try await repository.readCard()
     }
 }

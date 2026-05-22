@@ -7,31 +7,20 @@ final class RegisterMemberUseCase: RegisterMemberUseCaseProtocol {
         self.repository = repository
     }
 
-    func execute(name: String, completion: @escaping (Result<MemberCard, MBCError>) -> Void) {
+    func execute(name: String) async throws -> MemberCard {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, trimmed.count <= 32 else {
-            completion(.failure(.invalidName))
-            return
+            throw MBCError.invalidName
         }
         let card = MemberCard(
-            identity: MemberIdentity(
-                memberID: generateID(),
-                name: trimmed,
-                registeredDate: Date()
-            ),
+            identity: MemberIdentity(memberID: generateID(), name: trimmed, registeredDate: Date()),
             wallet: Wallet(balance: 0, lastTopUpAmount: 0),
             visitState: .idle,
             transactions: [],
             writeCounter: 0
         )
-        repository.writeCard(card) { result in
-            switch result {
-            case .success:
-                completion(.success(card))
-            case let .failure(error):
-                completion(.failure(error))
-            }
-        }
+        try await repository.writeCard(card)
+        return card
     }
 
     private func generateID() -> String {
