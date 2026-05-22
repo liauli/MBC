@@ -1,0 +1,125 @@
+// MARK: - Home
+"home.title" = "MBC";
+"home.subtitle" = "Pilih mode operasi:";
+"home.station" = "Station";
+"home.station.desc" = "Admin Koperasi";
+"home.gate" = "Gate";
+"home.gate.desc" = "Gerbang Masuk";
+"home.terminal" = "Terminal";
+"home.terminal.desc" = "Gerbang Keluar";
+"home.scout" = "Scout";
+"home.scout.desc" = "Cek Kartu";
+
+// MARK: - PIN
+"pin.create" = "Buat PIN";
+"pin.enter" = "Masukkan PIN";
+"pin.confirm" = "Konfirmasi PIN";
+"pin.subtitle" = "PIN 4 digit untuk mengamankan akses Station";
+"pin.wrong" = "PIN salah. Sisa %d percobaan.";
+"pin.locked" = "Terlalu banyak percobaan. Tunggu 30 detik.";
+"pin.mismatch" = "PIN tidak cocok";
+"pin.change" = "Ubah PIN";
+"pin.old" = "PIN Lama";
+"pin.new" = "PIN Baru";
+
+// MARK: - Station
+"station.title" = "Station";
+"station.subtitle" = "Admin Koperasi";
+"station.register" = "Daftar Anggota Baru";
+"station.register.desc" = "Registrasi kartu NFC baru";
+"station.topup" = "Isi Saldo";
+"station.topup.desc" = "Top-up saldo anggota";
+"station.changepin" = "Ubah PIN";
+"station.changepin.desc" = "Ganti PIN akses Station";
+
+// MARK: - Register
+"register.title" = "Daftar Anggota";
+"register.scan.prompt" = "Tempelkan kartu\nuntuk memeriksa status";
+"register.scan.button" = "Scan Kartu";
+"register.name.label" = "Nama Anggota";
+"register.name.placeholder" = "Masukkan nama lengkap";
+"register.name.hint" = "Maks. 32 karakter";
+"register.submit" = "Daftarkan ke Kartu";
+"register.success" = "Berhasil!";
+"register.success.subtitle" = "Kartu terdaftar atas nama:\n%@";
+"register.again" = "Daftar Lagi";
+"register.exists" = "Kartu Sudah Terdaftar";
+
+// MARK: - Top Up
+"topup.title" = "Isi Saldo";
+"topup.scan.prompt" = "Tempelkan kartu anggota\nuntuk melihat saldo";
+"topup.scan.button" = "Scan Kartu";
+"topup.select" = "Pilih Nominal";
+"topup.custom" = "Atau masukkan manual";
+"topup.confirm" = "Tempelkan Kartu untuk Top-Up";
+"topup.success" = "Top-Up Berhasil!";
+"topup.done" = "Selesai";
+
+// MARK: - Gate
+"gate.title" = "Gate";
+"gate.subtitle" = "Gerbang Masuk";
+"gate.scan.prompt" = "Tempelkan kartu anggota\nuntuk masuk";
+"gate.scan.button" = "Tap Kartu";
+"gate.simulation" = "Simulasi";
+"gate.simulation.active" = "MODE SIMULASI AKTIF";
+"gate.simulation.time" = "Waktu masuk";
+"gate.success" = "Selamat datang, %@!";
+"gate.success.subtitle" = "Check-in berhasil";
+"gate.next" = "Siap untuk Berikutnya";
+
+// MARK: - Terminal
+"terminal.title" = "Terminal";
+"terminal.subtitle" = "Gerbang Keluar";
+"terminal.scan.prompt" = "Tempelkan kartu anggota\nuntuk keluar";
+"terminal.scan.button" = "Tap Kartu";
+"terminal.success" = "Terima kasih, %@!";
+"terminal.success.subtitle" = "Selamat jalan.";
+"terminal.receipt" = "Receipt";
+"terminal.duration" = "Durasi";
+"terminal.tariff" = "Tarif (%d jam × Rp 2.000)";
+"terminal.balance.after" = "Saldo sesudah";
+"terminal.done" = "Selesai";
+
+// MARK: - Scout
+"scout.title" = "Scout";
+"scout.scan.prompt" = "Tempelkan kartu\nuntuk melihat info";
+"scout.scan.button" = "Scan Kartu";
+"scout.scan.again" = "Scan Ulang";
+"scout.balance" = "Saldo";
+"scout.history" = "Riwayat Terakhir";
+"scout.no.transactions" = "Belum ada transaksi";
+"scout.status.idle" = "○ Tidak aktif";
+"scout.status.checkedin" = "● Di dalam";
+
+// MARK: - Transaction Types
+"tx.topup" = "Top-up";
+"tx.checkin" = "Masuk";
+"tx.checkout" = "Keluar";
+
+// MARK: - Lock
+"lock.confirm.title" = "Kunci Layar?";
+"lock.confirm.message" = "Navigasi akan dinonaktifkan.\nTekan lama ikon kunci untuk membuka.";
+"lock.confirm.lock" = "Kunci";
+"lock.confirm.cancel" = "Batal";
+
+// MARK: - Common
+"common.close" = "Tutup";
+"common.back" = "Kembali";
+"common.retry" = "Coba Lagi";
+"common.failed" = "Gagal";
+"common.processing" = "Memproses...";
+
+// MARK: - Errors
+"error.nfc.unavailable" = "Perangkat tidak mendukung NFC";
+"error.nfc.read" = "Gagal membaca kartu. Coba tempelkan lagi.";
+"error.nfc.write" = "Gagal menulis ke kartu. Coba tempelkan lagi.";
+"error.card.unregistered" = "Kartu belum terdaftar. Silakan daftar di Station.";
+"error.already.checkedin" = "Kartu sudah tap-in. Silakan tap-out terlebih dahulu.";
+"error.not.checkedin" = "Kartu belum tap-in.";
+"error.insufficient.balance" = "Saldo tidak cukup. Butuh Rp %@, saldo Rp %@.";
+"error.invalid.name" = "Nama tidak valid. Masukkan 1-32 karakter.";
+"error.invalid.amount" = "Nominal tidak valid.";
+"error.serialization" = "Gagal memproses data kartu.";
+"error.deserialization" = "Data kartu rusak atau tidak dikenali.";
+"error.encryption" = "Gagal mengenkripsi data.";
+"error.decryption" = "Gagal mendekripsi data kartu.";
