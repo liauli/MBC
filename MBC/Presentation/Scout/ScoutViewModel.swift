@@ -17,7 +17,7 @@ final class ScoutViewModel: ObservableObject {
                 let card = try await readCardUseCase.execute()
                 state = .success(card)
             } catch let error as MBCError {
-                state = .error(error.localizedDescription)
+                state = .error(error.userMessage)
             } catch {
                 state = .error("Gagal membaca kartu")
             }

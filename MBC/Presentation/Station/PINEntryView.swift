@@ -18,7 +18,7 @@ struct PINEntryView: View {
     @ViewBuilder
     private var headerSection: some View {
         Text("🔒").font(.system(size: 48))
-        Text("Masukkan PIN")
+        Text(getString("pin.enter"))
             .font(DSFont.title)
             .foregroundColor(DSColor.textPrimary)
     }
@@ -27,11 +27,11 @@ struct PINEntryView: View {
     private var errorText: some View {
         switch viewModel.state {
         case let .wrongPIN(remaining):
-            Text("PIN salah. Sisa \(remaining) percobaan.")
+            Text(getString("pin.wrong", remaining))
                 .font(DSFont.caption)
                 .foregroundColor(DSColor.error)
         case .locked:
-            Text("Terlalu banyak percobaan. Tunggu 30 detik.")
+            Text(getString("pin.locked"))
                 .font(DSFont.caption)
                 .foregroundColor(DSColor.error)
         default:

@@ -35,7 +35,7 @@ struct ScoutView: View {
             color: DSColor.textSecondary,
             isScanning: viewModel.state == .scanning
         )
-        Button("Scan Kartu") { viewModel.scan() }
+        Button(getString("scout.scan.button")) { viewModel.scan() }
             .buttonStyle(DSButtonStyle(.primary))
             .disabled(viewModel.state == .scanning)
     }
@@ -46,7 +46,7 @@ struct ScoutView: View {
                 memberGradientCard(card)
                 balanceCard(card)
                 transactionCard(card)
-                Button("Scan Ulang") { viewModel.reset() }
+                Button(getString("scout.scan.again")) { viewModel.reset() }
                     .buttonStyle(DSButtonStyle(.outline))
             }
         }
@@ -85,7 +85,7 @@ struct ScoutView: View {
 
     private func balanceCard(_ card: MemberCard) -> some View {
         VStack {
-            Text("Saldo")
+            Text(getString("scout.balance"))
                 .font(DSFont.caption)
                 .foregroundColor(DSColor.textSecondary)
             Text("Rp \(card.wallet.balance.currencyFormatted)")
@@ -102,7 +102,7 @@ struct ScoutView: View {
         InfoCard {
             Text("📋 Riwayat Terakhir").font(DSFont.button)
             if card.transactions.isEmpty {
-                Text("Belum ada transaksi")
+                Text(getString("scout.no.transactions"))
                     .font(DSFont.caption)
                     .foregroundColor(DSColor.textSecondary)
             } else {

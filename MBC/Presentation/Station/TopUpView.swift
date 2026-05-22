@@ -15,11 +15,11 @@ struct TopUpView: View {
                 content
             }
             .padding()
-            .navigationTitle("Isi Saldo")
+            .navigationTitle(getString("topup.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Tutup") { presentationMode.wrappedValue.dismiss() }
+                    Button(getString("common.close")) { presentationMode.wrappedValue.dismiss() }
                 }
             }
         }
@@ -44,7 +44,7 @@ struct TopUpView: View {
     @ViewBuilder
     private var scanSection: some View {
         NFCPromptView(icon: "💰", text: "Tempelkan kartu anggota\nuntuk melihat saldo", color: DSColor.primary)
-        Button("Scan Kartu") { viewModel.readForTopUp() }
+        Button(getString("topup.scan.button")) { viewModel.readForTopUp() }
             .buttonStyle(DSButtonStyle(.primary))
     }
 
@@ -99,7 +99,7 @@ struct TopUpView: View {
 
     private var customInput: some View {
         VStack(alignment: .leading, spacing: DSSpacing.xs) {
-            Text("Atau masukkan manual")
+            Text(getString("topup.custom"))
                 .font(DSFont.caption)
                 .foregroundColor(DSColor.textSecondary)
             TextField("Rp 0", text: $customAmount)
@@ -125,14 +125,14 @@ struct TopUpView: View {
             subtitle: "Saldo baru: Rp \(card.wallet.balance.currencyFormatted)",
             isSuccess: true
         )
-        Button("Selesai") { presentationMode.wrappedValue.dismiss() }
+        Button(getString("topup.done")) { presentationMode.wrappedValue.dismiss() }
             .buttonStyle(DSButtonStyle(.primary))
     }
 
     @ViewBuilder
     private func errorSection(_ message: String) -> some View {
         ResultBanner(icon: "❌", title: "Gagal", subtitle: message, isSuccess: false)
-        Button("Coba Lagi") { viewModel.reset() }
+        Button(getString("common.retry")) { viewModel.reset() }
             .buttonStyle(DSButtonStyle(.primary))
     }
 

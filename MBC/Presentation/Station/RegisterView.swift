@@ -12,11 +12,11 @@ struct RegisterView: View {
                 content
             }
             .padding()
-            .navigationTitle("Daftar Anggota")
+            .navigationTitle(getString("register.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Tutup") { presentationMode.wrappedValue.dismiss() }
+                    Button(getString("common.close")) { presentationMode.wrappedValue.dismiss() }
                 }
             }
         }
@@ -42,32 +42,32 @@ struct RegisterView: View {
 
     @ViewBuilder
     private var scanSection: some View {
-        NFCPromptView(icon: "📝", text: "Tempelkan kartu\nuntuk memeriksa status", color: DSColor.primary)
-        Button("Scan Kartu") { viewModel.scanForRegister() }
+        NFCPromptView(icon: "📝", text: getString("register.scan.prompt"), color: DSColor.primary)
+        Button(getString("register.scan.button")) { viewModel.scanForRegister() }
             .buttonStyle(DSButtonStyle(.primary))
     }
 
     @ViewBuilder
     private var formSection: some View {
         VStack(alignment: .leading, spacing: DSSpacing.xs) {
-            Text("Nama Anggota")
+            Text(getString("register.name.label"))
                 .font(DSFont.caption)
                 .foregroundColor(DSColor.textSecondary)
-            TextField("Masukkan nama lengkap", text: $name)
+            TextField(getString("register.name.placeholder"), text: $name)
                 .textFieldStyle(.roundedBorder)
                 .font(DSFont.body)
-            Text("Maks. 32 karakter")
+            Text(getString("register.name.hint"))
                 .font(DSFont.caption)
                 .foregroundColor(DSColor.textSecondary)
         }
-        Button("Daftarkan ke Kartu") { viewModel.register(name: name) }
+        Button(getString("register.submit")) { viewModel.register(name: name) }
             .buttonStyle(DSButtonStyle(.primary))
             .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
     }
 
     @ViewBuilder
     private func existingCardSection(_ card: MemberCard) -> some View {
-        ResultBanner(icon: "⚠️", title: "Kartu Sudah Terdaftar", subtitle: card.identity.name, isSuccess: false)
+        ResultBanner(icon: "⚠️", title: getString("register.exists"), subtitle: card.identity.name, isSuccess: false)
         formSection
     }
 
@@ -75,7 +75,7 @@ struct RegisterView: View {
     private func successSection(_ card: MemberCard) -> some View {
         ResultBanner(
             icon: "✅",
-            title: "Berhasil!",
+            title: getString("register.success"),
             subtitle: "Kartu terdaftar atas nama:\n\(card.identity.name)",
             isSuccess: true
         )
@@ -83,14 +83,14 @@ struct RegisterView: View {
             InfoRow(label: "ID Anggota", value: card.identity.memberID)
             InfoRow(label: "Saldo", value: "Rp 0")
         }
-        Button("Daftar Lagi") { viewModel.reset(); name = "" }
+        Button(getString("register.again")) { viewModel.reset(); name = "" }
             .buttonStyle(DSButtonStyle(.primary))
     }
 
     @ViewBuilder
     private func errorSection(_ message: String) -> some View {
         ResultBanner(icon: "❌", title: "Gagal", subtitle: message, isSuccess: false)
-        Button("Coba Lagi") { viewModel.reset() }
+        Button(getString("common.retry")) { viewModel.reset() }
             .buttonStyle(DSButtonStyle(.primary))
     }
 }

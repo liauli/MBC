@@ -8,13 +8,13 @@ struct StationHomeView: View {
 
     var body: some View {
         VStack(spacing: DSSpacing.md) {
-            MenuCard(icon: "📝", title: "Daftar Anggota Baru", subtitle: "Registrasi kartu NFC baru") {
+            MenuCard(icon: "📝", title: getString("station.register"), subtitle: getString("station.register.desc")) {
                 showRegister = true
             }
-            MenuCard(icon: "💰", title: "Isi Saldo", subtitle: "Top-up saldo anggota") {
+            MenuCard(icon: "💰", title: getString("station.topup"), subtitle: getString("station.topup.desc")) {
                 showTopUp = true
             }
-            MenuCard(icon: "🔑", title: "Ubah PIN", subtitle: "Ganti PIN akses Station") {}
+            MenuCard(icon: "🔑", title: getString("station.changepin"), subtitle: getString("station.changepin.desc")) {}
             Spacer()
         }
         .padding()

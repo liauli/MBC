@@ -21,7 +21,7 @@ final class GateViewModel: ObservableObject {
                 let card = try await checkInUseCase.execute(simulatedTime: time)
                 state = .success(card)
             } catch let error as MBCError {
-                state = .error(error.localizedDescription)
+                state = .error(error.userMessage)
             } catch {
                 state = .error("Gagal check-in")
             }

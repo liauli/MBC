@@ -66,13 +66,15 @@ struct TerminalView: View {
 
     @ViewBuilder
     private var readySection: some View {
+        Spacer()
         NFCPromptView(
             icon: "🚏",
             text: "Tempelkan kartu anggota\nuntuk keluar",
             color: DSColor.success,
             isScanning: viewModel.state == .scanning
         )
-        Button("Tap Kartu") { viewModel.performCheckOut() }
+        Spacer()
+        Button(getString("terminal.scan.button")) { viewModel.performCheckOut() }
             .buttonStyle(DSButtonStyle(.primary))
             .disabled(viewModel.state == .scanning)
     }
@@ -92,14 +94,14 @@ struct TerminalView: View {
             Divider()
             InfoRow(label: "Saldo sesudah", value: "Rp \(card.wallet.balance.currencyFormatted)")
         }
-        Button("Selesai") { viewModel.reset() }
+        Button(getString("terminal.done")) { viewModel.reset() }
             .buttonStyle(DSButtonStyle(.primary))
     }
 
     @ViewBuilder
     private func errorSection(_ message: String) -> some View {
         ResultBanner(icon: "❌", title: "Gagal", subtitle: message, isSuccess: false)
-        Button("Kembali") { viewModel.reset() }
+        Button(getString("common.back")) { viewModel.reset() }
             .buttonStyle(DSButtonStyle(.outline))
     }
 

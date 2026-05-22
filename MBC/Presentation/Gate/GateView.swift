@@ -8,6 +8,7 @@ struct GateView: View {
     var body: some View {
         VStack(spacing: DSSpacing.lg) {
             topBar
+            simulationArea
             Spacer()
             mainContent
         }
@@ -29,7 +30,7 @@ struct GateView: View {
 
     private var topBar: some View {
         HStack {
-            Toggle("Simulasi", isOn: $viewModel.isSimulationMode)
+            Toggle(getString("gate.simulation"), isOn: $viewModel.isSimulationMode)
                 .font(DSFont.caption)
                 .toggleStyle(SwitchToggleStyle(tint: DSColor.warning))
             Spacer()
@@ -70,10 +71,6 @@ struct GateView: View {
 
     @ViewBuilder
     private var readySection: some View {
-        if viewModel.isSimulationMode {
-            simulationSection
-        }
-        Spacer()
         NFCPromptView(
             icon: "🚪",
             text: "Tempelkan kartu anggota\nuntuk masuk",
@@ -81,16 +78,25 @@ struct GateView: View {
             isScanning: viewModel.state == .scanning
         )
         Spacer()
-        Button("Tap Kartu") { viewModel.performCheckIn() }
+        Button(getString("gate.scan.button")) { viewModel.performCheckIn() }
             .buttonStyle(DSButtonStyle(.primary))
             .disabled(viewModel.state == .scanning)
+    }
+
+    private var simulationArea: some View {
+        VStack(spacing: DSSpacing.xs) {
+            if viewModel.isSimulationMode {
+                simulationSection
+            }
+        }
+        .frame(minHeight: 120)
     }
 
     private var simulationSection: some View {
         VStack(spacing: DSSpacing.sm) {
             HStack(spacing: DSSpacing.xs) {
                 Text("⚠️")
-                Text("MODE SIMULASI AKTIF")
+                Text(getString("gate.simulation.active"))
                     .font(DSFont.caption)
                     .fontWeight(.semibold)
             }
@@ -101,7 +107,7 @@ struct GateView: View {
             .cornerRadius(DSRadius.sm)
 
             DatePicker(
-                "Waktu masuk",
+                getString("gate.simulation.time"),
                 selection: $viewModel.simulatedTime,
                 displayedComponents: [.date, .hourAndMinute]
             )
@@ -119,14 +125,14 @@ struct GateView: View {
             subtitle: "Check-in berhasil",
             isSuccess: true
         )
-        Button("Siap untuk Berikutnya") { viewModel.reset() }
+        Button(getString("gate.next")) { viewModel.reset() }
             .buttonStyle(DSButtonStyle(.primary))
     }
 
     @ViewBuilder
     private func errorSection(_ message: String) -> some View {
         ResultBanner(icon: "❌", title: "Gagal", subtitle: message, isSuccess: false)
-        Button("Coba Lagi") { viewModel.reset() }
+        Button(getString("common.retry")) { viewModel.reset() }
             .buttonStyle(DSButtonStyle(.outline))
     }
 }
