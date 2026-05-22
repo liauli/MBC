@@ -9,7 +9,7 @@ final class RemoteConfigServiceTests: XCTestCase {
         sut = MockRemoteConfigService()
     }
 
-    func test_fetchAndActivate_success_callsCompletion() {
+    func test_fetchAndActivate_success() {
         sut.fetchResult = .success(())
         var result: Result<Void, Error>?
 
@@ -18,42 +18,38 @@ final class RemoteConfigServiceTests: XCTestCase {
         XCTAssertNotNil(try? result?.get())
     }
 
-    func test_fetchAndActivate_failure_returnsError() {
+    func test_fetchAndActivate_failure() {
         sut.fetchResult = .failure(NSError(domain: "test", code: -1))
         var result: Result<Void, Error>?
 
         sut.fetchAndActivate { result = $0 }
 
         switch result {
-        case .failure:
-            break
-        default:
-            XCTFail("Expected failure")
+        case .failure: break
+        default: XCTFail("Expected failure")
         }
     }
 
-    func test_bool_returnsConfiguredValue() {
-        sut.boolValues["is_enabled"] = true
+    func test_int_returnsConfiguredValue() {
+        sut.intValues["memberTariff"] = 3000
 
-        XCTAssertTrue(sut.bool(forKey: "is_enabled"))
+        XCTAssertEqual(sut.int(forKey: "memberTariff"), 3000)
     }
 
-    func test_bool_returnsFalseByDefault() {
-        XCTAssertFalse(sut.bool(forKey: "unknown_key"))
+    func test_int_returnsZeroByDefault() {
+        XCTAssertEqual(sut.int(forKey: "unknown"), 0)
     }
 }
 
-// MARK: - Mock
-
 private final class MockRemoteConfigService: RemoteConfigServiceProtocol {
     var fetchResult: Result<Void, Error> = .success(())
-    var boolValues: [String: Bool] = [:]
+    var intValues: [String: Int] = [:]
 
     func fetchAndActivate(completion: @escaping (Result<Void, Error>) -> Void) {
         completion(fetchResult)
     }
 
-    func bool(forKey key: String) -> Bool {
-        boolValues[key] ?? false
+    func int(forKey key: String) -> Int {
+        intValues[key] ?? 0
     }
 }
