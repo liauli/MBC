@@ -24,7 +24,7 @@ final class CardRepositoryTests: XCTestCase {
     func test_readCard_success_returnsDeserializedCard() async throws {
         // Given
         let expectedCard = makeTestCard()
-        mockNFC.readResult = .success(Data("encrypted".utf8))
+        mockNFC.readResult = .success(makeNFCData())
         mockCrypto.decryptResult = .success(Data("decrypted".utf8))
         mockSerializer.deserializeResult = .success(expectedCard)
 
@@ -54,7 +54,7 @@ final class CardRepositoryTests: XCTestCase {
 
     func test_readCard_decryptionFails_throws() async {
         // Given
-        mockNFC.readResult = .success(Data("data".utf8))
+        mockNFC.readResult = .success(makeNFCData("data"))
         mockCrypto.decryptResult = .failure(MBCError.decryptionFailed)
 
         // When / Then
@@ -68,7 +68,7 @@ final class CardRepositoryTests: XCTestCase {
 
     func test_readCard_deserializationFails_throws() async {
         // Given
-        mockNFC.readResult = .success(Data("data".utf8))
+        mockNFC.readResult = .success(makeNFCData("data"))
         mockCrypto.decryptResult = .success(Data("decrypted".utf8))
         mockSerializer.deserializeResult = .failure(MBCError.deserializationFailed)
 
@@ -95,7 +95,8 @@ final class CardRepositoryTests: XCTestCase {
         try await sut.writeCard(card)
 
         // Then
-        XCTAssertEqual(mockNFC.writtenData, encryptedData)
+        let expectedWritten = encryptedData + Data(repeating: 0xAA, count: 32)
+        XCTAssertEqual(mockNFC.writtenData, expectedWritten)
         XCTAssertEqual(mockSerializer.serializeCallCount, 1)
         XCTAssertEqual(mockCrypto.encryptCallCount, 1)
         XCTAssertEqual(mockNFC.writeCallCount, 1)
@@ -135,7 +136,7 @@ final class CardRepositoryTests: XCTestCase {
     func test_readAndUpdateCard_success_returnsUpdatedCard() async throws {
         // Given
         let originalCard = makeTestCard()
-        mockNFC.readResult = .success(Data("encrypted".utf8))
+        mockNFC.readResult = .success(makeNFCData())
         mockCrypto.decryptResult = .success(Data("decrypted".utf8))
         mockSerializer.deserializeResult = .success(originalCard)
         mockSerializer.serializeResult = .success(Data("reserialized".utf8))
@@ -157,7 +158,7 @@ final class CardRepositoryTests: XCTestCase {
 
     func test_readAndUpdateCard_updateThrows_throws() async {
         // Given
-        mockNFC.readResult = .success(Data("encrypted".utf8))
+        mockNFC.readResult = .success(makeNFCData())
         mockCrypto.decryptResult = .success(Data("decrypted".utf8))
         mockSerializer.deserializeResult = .success(makeTestCard())
 
@@ -201,5 +202,9 @@ final class CardRepositoryTests: XCTestCase {
             transactions: [],
             writeCounter: 1
         )
+    }
+
+    private func makeNFCData(_ payload: String = "encrypted") -> Data {
+        Data(payload.utf8) + Data(repeating: 0xAA, count: 32)
     }
 }
