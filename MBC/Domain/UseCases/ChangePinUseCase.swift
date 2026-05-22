@@ -10,11 +10,11 @@ final class ChangePinUseCase: ChangePinUseCaseProtocol {
     func execute(currentPin: String?, newPin: String) async throws {
         if let currentPin {
             guard repository.verifyPin(currentPin) else {
-                throw MBCError.invalidName
+                throw MBCError.wrongPin
             }
         }
         guard isValidPin(newPin) else {
-            throw MBCError.invalidName
+            throw MBCError.invalidPin
         }
         let success = repository.setPin(newPin)
         guard success else { throw MBCError.encryptionFailed }

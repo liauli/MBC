@@ -5,6 +5,7 @@ import SwiftUI
 struct MBCApp: App {
     init() {
         FirebaseApp.configure()
+        RemoteConfigService().fetchAndActivate { _ in }
     }
 
     var body: some Scene {

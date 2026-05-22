@@ -119,6 +119,8 @@
 "error.insufficient.balance" = "Saldo tidak cukup. Butuh Rp %@, saldo Rp %@.";
 "error.invalid.name" = "Nama tidak valid. Masukkan 1-32 karakter.";
 "error.invalid.amount" = "Nominal tidak valid.";
+"error.wrong.pin" = "PIN salah.";
+"error.invalid.pin" = "PIN tidak valid. Harus 4 digit.";
 "error.serialization" = "Gagal memproses data kartu.";
 "error.deserialization" = "Data kartu rusak atau tidak dikenali.";
 "error.encryption" = "Gagal mengenkripsi data.";

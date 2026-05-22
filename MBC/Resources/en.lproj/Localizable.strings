@@ -119,6 +119,8 @@
 "error.insufficient.balance" = "Insufficient balance. Need Rp %@, balance Rp %@.";
 "error.invalid.name" = "Invalid name. Enter 1-32 characters.";
 "error.invalid.amount" = "Invalid amount.";
+"error.wrong.pin" = "Wrong PIN.";
+"error.invalid.pin" = "Invalid PIN. Must be 4 digits.";
 "error.serialization" = "Failed to process card data.";
 "error.deserialization" = "Card data corrupted or unrecognized.";
 "error.encryption" = "Failed to encrypt data.";

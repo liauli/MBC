@@ -27,6 +27,9 @@ final class CheckOutUseCase: CheckOutUseCaseProtocol {
             updatedCard.transactions.append(
                 Transaction(type: .checkOut, amount: tariff.amount, timestamp: Date())
             )
+            if updatedCard.transactions.count > 5 {
+                updatedCard.transactions.removeFirst(updatedCard.transactions.count - 5)
+            }
             updatedCard.writeCounter += 1
             return updatedCard
         }

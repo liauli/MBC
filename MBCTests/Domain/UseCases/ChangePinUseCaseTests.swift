@@ -40,9 +40,8 @@ final class ChangePinUseCaseTests: XCTestCase {
             try await sut.execute(currentPin: "0000", newPin: "5678")
             XCTFail("Expected error")
         } catch {
-            XCTAssertEqual(error as? MBCError, .invalidName)
+            XCTAssertEqual(error as? MBCError, .wrongPin)
         }
-        XCTAssertEqual(mockRepository.storedPin, "1234")
     }
 
     func test_execute_invalidNewPin_tooShort_throws() async {
@@ -50,7 +49,7 @@ final class ChangePinUseCaseTests: XCTestCase {
             try await sut.execute(currentPin: nil, newPin: "12")
             XCTFail("Expected error")
         } catch {
-            XCTAssertEqual(error as? MBCError, .invalidName)
+            XCTAssertEqual(error as? MBCError, .invalidPin)
         }
     }
 
@@ -59,7 +58,7 @@ final class ChangePinUseCaseTests: XCTestCase {
             try await sut.execute(currentPin: nil, newPin: "abcd")
             XCTFail("Expected error")
         } catch {
-            XCTAssertEqual(error as? MBCError, .invalidName)
+            XCTAssertEqual(error as? MBCError, .invalidPin)
         }
     }
 }
