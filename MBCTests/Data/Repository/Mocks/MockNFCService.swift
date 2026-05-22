@@ -8,14 +8,20 @@ final class MockNFCService: NFCServiceProtocol {
     var readCallCount = 0
     var writeCallCount = 0
 
-    func read(completion: @escaping (Result<Data, MBCError>) -> Void) {
+    func read() async throws -> Data {
         readCallCount += 1
-        completion(readResult)
+        switch readResult {
+        case let .success(data): return data
+        case let .failure(error): throw error
+        }
     }
 
-    func write(_ data: Data, completion: @escaping (Result<Void, MBCError>) -> Void) {
+    func write(_ data: Data) async throws {
         writeCallCount += 1
         writtenData = data
-        completion(writeResult)
+        switch writeResult {
+        case .success: return
+        case let .failure(error): throw error
+        }
     }
 }

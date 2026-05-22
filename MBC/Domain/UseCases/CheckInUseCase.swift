@@ -7,14 +7,10 @@ final class CheckInUseCase: CheckInUseCaseProtocol {
         self.cardRepository = cardRepository
     }
 
-    func execute(
-        simulatedTime: Date?,
-        completion: @escaping (Result<MemberCard, MBCError>) -> Void
-    ) {
+    func execute(simulatedTime: Date?) async throws -> MemberCard {
         let checkInTime = simulatedTime ?? Date()
         let isSimulated = simulatedTime != nil
-
-        cardRepository.readAndUpdateCard({ card in
+        return try await cardRepository.readAndUpdateCard { card in
             guard case .idle = card.visitState else {
                 throw MBCError.alreadyCheckedIn
             }
@@ -25,6 +21,6 @@ final class CheckInUseCase: CheckInUseCaseProtocol {
             )
             updatedCard.writeCounter += 1
             return updatedCard
-        }, completion: completion)
+        }
     }
 }

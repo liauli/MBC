@@ -11,21 +11,15 @@ final class CheckOutUseCaseTests: XCTestCase {
         sut = CheckOutUseCase(cardRepository: mockRepository)
     }
 
-    func test_execute_checkedInWithSufficientBalance_succeeds() {
+    func test_execute_checkedInWithSufficientBalance_succeeds() async throws {
         // Given
         let checkInTime = Date(timeIntervalSince1970: Date().timeIntervalSince1970 - 7200)
-        let card = makeCheckedInCard(checkInTime: checkInTime, balance: 50000)
-        mockRepository.readResult = .success(card)
-        var result: Result<(MemberCard, TariffResult), MBCError>?
+        mockRepository.readResult = .success(makeCheckedInCard(checkInTime: checkInTime, balance: 50000))
 
         // When
-        sut.execute { result = $0 }
+        let (updatedCard, tariff) = try await sut.execute()
 
         // Then
-        guard case let .success((updatedCard, tariff)) = result else {
-            XCTFail("Expected success")
-            return
-        }
         XCTAssertEqual(updatedCard.visitState, .idle)
         XCTAssertEqual(tariff.hours, 2)
         XCTAssertEqual(tariff.amount, 4000)
@@ -33,42 +27,32 @@ final class CheckOutUseCaseTests: XCTestCase {
         XCTAssertEqual(updatedCard.transactions.last?.type, .checkOut)
     }
 
-    func test_execute_notCheckedIn_fails() {
+    func test_execute_notCheckedIn_throws() async {
         // Given
-        let card = makeIdleCard()
-        mockRepository.readResult = .success(card)
-        var result: Result<(MemberCard, TariffResult), MBCError>?
+        mockRepository.readResult = .success(makeIdleCard())
 
-        // When
-        sut.execute { result = $0 }
-
-        // Then
-        guard case let .failure(error) = result else {
-            XCTFail("Expected failure")
-            return
+        // When / Then
+        do {
+            _ = try await sut.execute()
+            XCTFail("Expected error")
+        } catch {
+            XCTAssertEqual(error as? MBCError, .notCheckedIn)
         }
-        XCTAssertEqual(error, .notCheckedIn)
     }
 
-    func test_execute_insufficientBalance_fails() {
+    func test_execute_insufficientBalance_throws() async {
         // Given
         let checkInTime = Date(timeIntervalSince1970: Date().timeIntervalSince1970 - 7200)
-        let card = makeCheckedInCard(checkInTime: checkInTime, balance: 1000)
-        mockRepository.readResult = .success(card)
-        var result: Result<(MemberCard, TariffResult), MBCError>?
+        mockRepository.readResult = .success(makeCheckedInCard(checkInTime: checkInTime, balance: 1000))
 
-        // When
-        sut.execute { result = $0 }
-
-        // Then
-        guard case let .failure(error) = result else {
-            XCTFail("Expected failure")
-            return
+        // When / Then
+        do {
+            _ = try await sut.execute()
+            XCTFail("Expected error")
+        } catch {
+            XCTAssertEqual(error as? MBCError, .insufficientBalance(required: 4000, available: 1000))
         }
-        XCTAssertEqual(error, .insufficientBalance(required: 4000, available: 1000))
     }
-
-    // MARK: - Helpers
 
     private func makeIdleCard() -> MemberCard {
         MemberCard(

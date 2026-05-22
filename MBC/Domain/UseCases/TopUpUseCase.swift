@@ -9,12 +9,11 @@ final class TopUpUseCase: TopUpUseCaseProtocol {
         self.repository = repository
     }
 
-    func execute(amount: Int, completion: @escaping (Result<MemberCard, MBCError>) -> Void) {
+    func execute(amount: Int) async throws -> MemberCard {
         guard amount > 0, amount <= Self.maxTopUp else {
-            completion(.failure(.invalidAmount))
-            return
+            throw MBCError.invalidAmount
         }
-        repository.readAndUpdateCard({ card in
+        return try await repository.readAndUpdateCard { card in
             let newBalance = card.wallet.balance + amount
             guard newBalance <= Self.maxBalance else {
                 throw MBCError.invalidAmount
@@ -28,9 +27,7 @@ final class TopUpUseCase: TopUpUseCaseProtocol {
             )
             updated.writeCounter += 1
             return updated
-        }, completion: { result in
-            completion(result)
-        })
+        }
     }
 
     private static func appendTransaction(_ transaction: Transaction, to existing: [Transaction]) -> [Transaction] {

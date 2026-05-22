@@ -7,19 +7,17 @@ final class ChangePinUseCase: ChangePinUseCaseProtocol {
         self.repository = repository
     }
 
-    func execute(currentPin: String?, newPin: String, completion: @escaping (Result<Void, MBCError>) -> Void) {
+    func execute(currentPin: String?, newPin: String) async throws {
         if let currentPin {
             guard repository.verifyPin(currentPin) else {
-                completion(.failure(.invalidName))
-                return
+                throw MBCError.invalidName
             }
         }
         guard isValidPin(newPin) else {
-            completion(.failure(.invalidName))
-            return
+            throw MBCError.invalidName
         }
         let success = repository.setPin(newPin)
-        completion(success ? .success(()) : .failure(.encryptionFailed))
+        guard success else { throw MBCError.encryptionFailed }
     }
 
     private func isValidPin(_ pin: String) -> Bool {

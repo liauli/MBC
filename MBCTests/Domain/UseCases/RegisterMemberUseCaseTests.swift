@@ -11,74 +11,49 @@ final class RegisterMemberUseCaseTests: XCTestCase {
         sut = RegisterMemberUseCase(repository: mockRepository)
     }
 
-    func test_execute_validName_writesCardAndReturns() {
+    func test_execute_validName_writesCardAndReturns() async throws {
         // Given
         mockRepository.writeCardResult = .success(())
 
         // When
-        var result: Result<MemberCard, MBCError>?
-        sut.execute(name: "Ahmad") { result = $0 }
+        let card = try await sut.execute(name: "Ahmad")
 
         // Then
-        switch result {
-        case let .success(card):
-            XCTAssertEqual(card.identity.name, "Ahmad")
-            XCTAssertEqual(card.wallet.balance, 0)
-            XCTAssertEqual(card.visitState, .idle)
-            XCTAssertFalse(card.identity.memberID.isEmpty)
-        default:
-            XCTFail("Expected success")
-        }
+        XCTAssertEqual(card.identity.name, "Ahmad")
+        XCTAssertEqual(card.wallet.balance, 0)
+        XCTAssertEqual(card.visitState, .idle)
+        XCTAssertFalse(card.identity.memberID.isEmpty)
         XCTAssertNotNil(mockRepository.writtenCard)
     }
 
-    func test_execute_trimsWhitespace() {
-        // Given
-        mockRepository.writeCardResult = .success(())
-
-        // When
-        var result: Result<MemberCard, MBCError>?
-        sut.execute(name: "  Budi  ") { result = $0 }
-
-        // Then
-        if case let .success(card) = result {
-            XCTAssertEqual(card.identity.name, "Budi")
-        } else {
-            XCTFail("Expected success")
+    func test_execute_emptyName_throws() async {
+        do {
+            _ = try await sut.execute(name: "   ")
+            XCTFail("Expected error")
+        } catch {
+            XCTAssertEqual(error as? MBCError, .invalidName)
         }
     }
 
-    func test_execute_emptyName_fails() {
-        // When
-        var error: MBCError?
-        sut.execute(name: "   ") { if case let .failure(e) = $0 { error = e } }
-
-        // Then
-        XCTAssertEqual(error, .invalidName)
-        XCTAssertNil(mockRepository.writtenCard)
+    func test_execute_nameTooLong_throws() async {
+        do {
+            _ = try await sut.execute(name: String(repeating: "A", count: 33))
+            XCTFail("Expected error")
+        } catch {
+            XCTAssertEqual(error as? MBCError, .invalidName)
+        }
     }
 
-    func test_execute_nameTooLong_fails() {
-        // Given
-        let longName = String(repeating: "A", count: 33)
-
-        // When
-        var error: MBCError?
-        sut.execute(name: longName) { if case let .failure(e) = $0 { error = e } }
-
-        // Then
-        XCTAssertEqual(error, .invalidName)
-    }
-
-    func test_execute_nfcWriteFails_returnsError() {
+    func test_execute_nfcWriteFails_throws() async {
         // Given
         mockRepository.writeCardResult = .failure(.nfcWriteFailed)
 
-        // When
-        var error: MBCError?
-        sut.execute(name: "Citra") { if case let .failure(e) = $0 { error = e } }
-
-        // Then
-        XCTAssertEqual(error, .nfcWriteFailed)
+        // When / Then
+        do {
+            _ = try await sut.execute(name: "Citra")
+            XCTFail("Expected error")
+        } catch {
+            XCTAssertEqual(error as? MBCError, .nfcWriteFailed)
+        }
     }
 }
