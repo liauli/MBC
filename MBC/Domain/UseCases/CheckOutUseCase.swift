@@ -8,7 +8,7 @@ final class CheckOutUseCase: CheckOutUseCaseProtocol {
     }
 
     func execute() async throws -> (MemberCard, TariffResult) {
-        var tariffResult: TariffResult!
+        var tariffResult: TariffResult?
         let updatedCard = try await cardRepository.readAndUpdateCard { card in
             guard case let .checkedIn(checkInTime, _) = card.visitState else {
                 throw MBCError.notCheckedIn
@@ -27,6 +27,7 @@ final class CheckOutUseCase: CheckOutUseCaseProtocol {
             updatedCard.writeCounter += 1
             return updatedCard
         }
-        return (updatedCard, tariffResult)
+        guard let tariff = tariffResult else { throw MBCError.notCheckedIn }
+        return (updatedCard, tariff)
     }
 }
